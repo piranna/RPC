@@ -1,0 +1,36 @@
+{
+  "name": "@transfast/jsonrpcclient",
+  "version": "0.0.0",
+  "description": "",
+  "scripts": {
+    "test": "jest --coverage --notify"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Takeafile/JsonRpcClient.git"
+  },
+  "keywords": [
+    "transfast",
+    "client",
+    "websocket",
+    "datachannel",
+    "webrtc",
+    "p2p",
+    "json",
+    "jsonrpc"
+  ],
+  "author": "Jesús Leganés-Combarro 'piranna' <piranna@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Takeafile/JsonRpcClient/issues"
+  },
+  "homepage": "https://github.com/Takeafile/JsonRpcClient#readme",
+  "jest": {
+    "collectCoverageFrom": [
+      "*.js"
+    ]
+  },
+  "devDependencies": {
+    "jest-cli": "^25.3.0"
+  }
+}
