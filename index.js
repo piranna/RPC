@@ -20,10 +20,10 @@ module.exports = function(methods)
       try {
         data = JSON.parse(data)
       }
-      catch(e) {
+      catch(data) {
         id = null  // Spec says `id` must be set to null if it can't be parsed
 
-        return reply({code: -32700, message: 'Invalid JSON'})
+        return reply({code: -32700, data, message: 'Invalid JSON'})
       }
 
       const {jsonrpc, method} = data
@@ -31,13 +31,13 @@ module.exports = function(methods)
       var {id} = data
 
       if(jsonrpc !== '2.0')
-        return reply({code: -32600, message: `Invalid JsonRPC version '${jsonrpc}`})
+        return reply({code: -32600, data: jsonrpc, message: `Invalid JsonRPC version '${jsonrpc}`})
 
       // Request
       if(method)
       {
         const func = methods[method]
-        if(!func) return reply({code: -32601, message: `Unknown method '${method}'`})
+        if(!func) return reply({code: -32601, data: method, message: `Unknown method '${method}'`})
 
         if(!Array.isArray(params)) params = [params]
 
