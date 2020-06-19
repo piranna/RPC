@@ -11,7 +11,14 @@ test('basic', function(done)
     }
   }
 
-  const jsonRpcClient = JsonRpcClient(methods)
+  function send(data)
+  {
+    expect(data).toBe('{"id":0,"jsonrpc":"2.0","result":"bar"}')
+
+    jsonRpcClient.onMessage({data: JSON.stringify(data)})
+  }
+
+  const jsonRpcClient = JsonRpcClient(methods, send)
 
   const data = jsonRpcClient.request('foo', [], function(error, result)
   {
@@ -23,32 +30,19 @@ test('basic', function(done)
 
   expect(data).toEqual({id: 0, jsonrpc: '2.0', method: 'foo', params: []})
 
-  const socket =
-  {
-    send(data)
-    {
-      expect(data).toBe('{"id":0,"jsonrpc":"2.0","result":"bar"}')
-
-      jsonRpcClient.onMessage.call(this, {data})
-    }
-  }
-
-  jsonRpcClient.onMessage.call(socket, {data: JSON.stringify(data)})
+  jsonRpcClient.onMessage({data: JSON.stringify(data)})
 })
 
 test('Invalid JSON', function(done)
 {
-  const jsonRpcClient = JsonRpcClient()
-
-  const socket =
+  function send(data)
   {
-    send(data)
-    {
-      expect(data).toBe('{"error":{"code":-32700,"message":"Invalid JSON"},"id":null,"jsonrpc":"2.0"}')
+    expect(data).toBe('{"error":{"code":-32700,"message":"Invalid JSON"},"id":null,"jsonrpc":"2.0"}')
 
-      done()
-    }
+    done()
   }
 
-  jsonRpcClient.onMessage.call(socket, {})
+  const jsonRpcClient = JsonRpcClient({}, send)
+
+  jsonRpcClient.onMessage({})
 })
