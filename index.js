@@ -35,13 +35,22 @@ function JsonRpcClient(methods, send)
     async onMessage({error, id, jsonrpc, method, params, result})
     {
       if(jsonrpc !== '2.0')
-        return reply(id, {code: -32600, data: jsonrpc, message: `Invalid JsonRPC version '${jsonrpc}'`})
+        return reply(id, {
+          code: -32600,
+          data: jsonrpc,
+          message: `Invalid JsonRPC version '${jsonrpc}'`
+        })
 
       // Request
       if(method)
       {
         const func = methods[method]
-        if(!func) return reply(id, {code: -32601, data: method, message: `Unknown method '${method}'`})
+        if(!func)
+          return reply(id, {
+            code: -32601,
+            data: method,
+            message: `Unknown method '${method}'`
+          })
 
         if(!Array.isArray(params)) params = [params]
 
