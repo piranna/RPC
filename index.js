@@ -4,25 +4,24 @@ module.exports = function(methods, send)
 
   let requestId = 0
 
+  function reply(id, error, result)
+  {
+    if(id !== undefined) return send({error, id, jsonrpc: '2.0', result})
+
+    // Log error responses for notifications
+    if(error) console.warn('Error response for notification:', error)
+  }
 
   return {
     async onMessage({data})
     {
-      const reply = (error, result) =>
-      {
-        if(id !== undefined) return send({error, id, jsonrpc: '2.0', result})
-
-        // Log error responses for notifications
-        if(error) console.warn('Error response for notification:', error)
-      }
-
       try {
         data = JSON.parse(data)
       }
       catch(e) {
-        id = null  // Spec says `id` must be set to null if it can't be parsed
+        // Spec says `id` must be set to null if it can't be parsed
 
-        return reply({code: -32700, message: 'Invalid JSON'})
+        return reply(null, {code: -32700, message: 'Invalid JSON'})
       }
 
       const {jsonrpc, method} = data
@@ -30,18 +29,18 @@ module.exports = function(methods, send)
       var {id} = data
 
       if(jsonrpc !== '2.0')
-        return reply({code: -32600, message: `Invalid JsonRPC version '${jsonrpc}`})
+        return reply(id, {code: -32600, message: `Invalid JsonRPC version '${jsonrpc}`})
 
       // Request
       if(method)
       {
         const func = methods[method]
-        if(!func) return reply({code: -32601, message: `Unknown method '${method}'`})
+        if(!func) return reply(id, {code: -32601, message: `Unknown method '${method}'`})
 
         if(!Array.isArray(params)) params = [params]
 
         try {
-          result = await func.apply(null, params)
+          result = await func(...params)
         }
         catch(data)
         {
@@ -49,7 +48,7 @@ module.exports = function(methods, send)
                 : {code: -32500, data, message: data.message || data}
         }
 
-        return reply(error, result)
+        return reply(id, error, result)
       }
 
       // Response
