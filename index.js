@@ -1,4 +1,4 @@
-module.exports = function(methods, send)
+function JsonRpcClient(methods, send)
 {
   const responses = {}
 
@@ -32,23 +32,10 @@ module.exports = function(methods, send)
       return request(method, params)
     },
 
-    async onMessage({data})
+    async onMessage({error, id, jsonrpc, method, params, result})
     {
-      try {
-        data = JSON.parse(data)
-      }
-      catch(e) {
-        // Spec says `id` must be set to null if it can't be parsed
-
-        return reply(null, {code: -32700, message: 'Invalid JSON'})
-      }
-
-      const {jsonrpc, method} = data
-      let {error, params, result} = data
-      var {id} = data
-
       if(jsonrpc !== '2.0')
-        return reply(id, {code: -32600, message: `Invalid JsonRPC version '${jsonrpc}`})
+        return reply(id, {code: -32600, message: `Invalid JsonRPC version '${jsonrpc}'`})
 
       // Request
       if(method)
@@ -81,3 +68,13 @@ module.exports = function(methods, send)
     request
   }
 }
+
+
+JsonRpcClient.InvalidJSON = {
+  error: {code: -32700, message: 'Invalid JSON'},
+  id: null,  // Spec says `id` must be set to null if it can't be parsed
+  jsonrpc: '2.0'
+}
+
+
+module.exports = JsonRpcClient

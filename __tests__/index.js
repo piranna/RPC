@@ -19,7 +19,7 @@ test('basic', function(done)
       result: "bar"
     })
 
-    jsonRpcClient.onMessage({data: JSON.stringify(data)})
+    jsonRpcClient.onMessage(data)
   }
 
   const jsonRpcClient = JsonRpcClient(methods, send)
@@ -34,19 +34,19 @@ test('basic', function(done)
 
   expect(data).toEqual({id: 0, jsonrpc: '2.0', method: 'foo', params: []})
 
-  jsonRpcClient.onMessage({data: JSON.stringify(data)})
+  jsonRpcClient.onMessage(data)
 })
 
-test('Invalid JSON', function(done)
+test("Invalid JsonRPC version 'undefined'", function(done)
 {
   function send(data)
   {
     expect(data).toEqual({
       error: {
-        code: -32700,
-        message: "Invalid JSON"
+        code: -32600,
+        message: "Invalid JsonRPC version 'undefined'"
       },
-      id: null,
+      id: 0,
       jsonrpc: "2.0"
     })
 
@@ -55,5 +55,5 @@ test('Invalid JSON', function(done)
 
   const jsonRpcClient = JsonRpcClient({}, send)
 
-  jsonRpcClient.onMessage({})
+  jsonRpcClient.onMessage({id: 0})
 })
