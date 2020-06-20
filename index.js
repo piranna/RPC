@@ -35,13 +35,13 @@ function JsonRpcClient(methods, send)
     async onMessage({error, id, jsonrpc, method, params, result})
     {
       if(jsonrpc !== '2.0')
-        return reply(id, {code: -32600, message: `Invalid JsonRPC version '${jsonrpc}'`})
+        return reply(id, {code: -32600, data: jsonrpc, message: `Invalid JsonRPC version '${jsonrpc}'`})
 
       // Request
       if(method)
       {
         const func = methods[method]
-        if(!func) return reply(id, {code: -32601, message: `Unknown method '${method}'`})
+        if(!func) return reply(id, {code: -32601, data: method, message: `Unknown method '${method}'`})
 
         if(!Array.isArray(params)) params = [params]
 
@@ -70,10 +70,13 @@ function JsonRpcClient(methods, send)
 }
 
 
-JsonRpcClient.InvalidJSON = {
-  error: {code: -32700, message: 'Invalid JSON'},
-  id: null,  // Spec says `id` must be set to null if it can't be parsed
-  jsonrpc: '2.0'
+JsonRpcClient.InvalidJSON = function(data)
+{
+  return {
+    error: {code: -32700, data, message: 'Invalid JSON'},
+    id: null,  // Spec says `id` must be set to null if it can't be parsed
+    jsonrpc: '2.0'
+  }
 }
 
 
