@@ -13,7 +13,11 @@ test('basic', function(done)
 
   function send(data)
   {
-    expect(data).toBe('{"id":0,"jsonrpc":"2.0","result":"bar"}')
+    expect(data).toEqual({
+      id: 0,
+      jsonrpc: "2.0",
+      result: "bar"
+    })
 
     jsonRpcClient.onMessage({data: JSON.stringify(data)})
   }
@@ -37,7 +41,14 @@ test('Invalid JSON', function(done)
 {
   function send(data)
   {
-    expect(data).toBe('{"error":{"code":-32700,"message":"Invalid JSON"},"id":null,"jsonrpc":"2.0"}')
+    expect(data).toEqual({
+      error: {
+        code: -32700,
+        message: "Invalid JSON"
+      },
+      id: null,
+      jsonrpc: "2.0"
+    })
 
     done()
   }

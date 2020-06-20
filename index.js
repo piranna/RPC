@@ -10,8 +10,7 @@ module.exports = function(methods, send)
     {
       const reply = (error, result) =>
       {
-        if(id !== undefined)
-          return send(JSON.stringify({error, id, jsonrpc: '2.0', result}))
+        if(id !== undefined) return send({error, id, jsonrpc: '2.0', result})
 
         // Log error responses for notifications
         if(error) console.warn('Error response for notification:', error)
