@@ -4,6 +4,20 @@ module.exports = function(methods, send)
 
   let requestId = 0
 
+  function request(method, params, callback)
+  {
+    let id
+
+    if(callback)
+    {
+      id = requestId++
+
+      responses[id] = callback
+    }
+
+    return {id, jsonrpc: '2.0', method, params}
+  }
+
   function reply(id, error, result)
   {
     if(id !== undefined) return send({error, id, jsonrpc: '2.0', result})
@@ -13,6 +27,11 @@ module.exports = function(methods, send)
   }
 
   return {
+    notification(method, params)
+    {
+      return request(method, params)
+    },
+
     async onMessage({data})
     {
       try {
@@ -59,18 +78,6 @@ module.exports = function(methods, send)
       response(error, result)
     },
 
-    request(method, params, callback)
-    {
-      let id
-
-      if(callback)
-      {
-        id = requestId++
-
-        responses[id] = callback
-      }
-
-      return {id, jsonrpc: '2.0', method, params}
-    }
+    request
   }
 }
