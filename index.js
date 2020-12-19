@@ -6,6 +6,15 @@ function JsonRpcClient(methods, send)
 
   function notification(method, params)
   {
+    // Check if params where send as an `Object` or an `Array`
+    if(!(params instanceof Object))
+    {
+      const error = new Error('params is not an Object or an Array')
+      error.params = params
+
+      throw error
+    }
+
     return {jsonrpc: '2.0', method, params}
   }
 
