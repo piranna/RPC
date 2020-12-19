@@ -8,6 +8,13 @@ function JsonRpcClient(methods, send)
   {
     let id
 
+    // Made `params` optional
+    if(params instanceof Function)
+    {
+      callback = params
+      params = undefined
+    }
+
     if(callback)
     {
       id = requestId++
@@ -52,6 +59,7 @@ function JsonRpcClient(methods, send)
             message: `Unknown method '${method}'`
           })
 
+        // Check if params where send as an `Object`
         if(!Array.isArray(params)) params = [params]
 
         try {
