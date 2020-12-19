@@ -1,59 +1,58 @@
-const JsonRpcClient = require('..')
+const JsonRpcClient = require("..");
 
+test("basic", function (done) {
+  const methods = {
+    foo() {
+      return "bar";
+    },
+  };
 
-test('basic', function(done)
-{
-  const methods =
-  {
-    foo()
-    {
-      return 'bar'
-    }
-  }
-
-  function send(data)
-  {
+  function send(data) {
     expect(data).toEqual({
       id: 0,
       jsonrpc: "2.0",
-      result: "bar"
-    })
+      result: "bar",
+    });
 
-    jsonRpcClient.onMessage(data)
+    jsonRpcClient.onMessage(data);
   }
 
-  const jsonRpcClient = JsonRpcClient(methods, send)
+  const jsonRpcClient = JsonRpcClient(methods, send);
 
-  const data = jsonRpcClient.request('foo', [], function(error, result)
-  {
-    expect(error).toBeFalsy()
-    expect(result).toBe('bar')
+  const data = jsonRpcClient.request("foo", [], function (error, result) {
+    expect(error).toBeFalsy();
+    expect(result).toBe("bar");
 
-    done()
-  })
+    done();
+  });
 
-  expect(data).toEqual({id: 0, jsonrpc: '2.0', method: 'foo', params: []})
+  expect(data).toMatchInlineSnapshot(`
+    Promise {
+      "id": 0,
+      "jsonrpc": "2.0",
+      "method": "foo",
+      "params": Array [],
+    }
+  `);
 
-  jsonRpcClient.onMessage(data)
-})
+  jsonRpcClient.onMessage(data);
+});
 
-test("Invalid JsonRPC version 'undefined'", function(done)
-{
-  function send(data)
-  {
+test("Invalid JsonRPC version 'undefined'", function (done) {
+  function send(data) {
     expect(data).toEqual({
       error: {
         code: -32600,
-        message: "Invalid JsonRPC version 'undefined'"
+        message: "Invalid JsonRPC version 'undefined'",
       },
       id: 0,
-      jsonrpc: "2.0"
-    })
+      jsonrpc: "2.0",
+    });
 
-    done()
+    done();
   }
 
-  const jsonRpcClient = JsonRpcClient({}, send)
+  const jsonRpcClient = JsonRpcClient({}, send);
 
-  jsonRpcClient.onMessage({id: 0})
-})
+  jsonRpcClient.onMessage({ id: 0 });
+});

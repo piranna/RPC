@@ -4,10 +4,13 @@ function JsonRpcClient(methods, send)
 
   let requestId = 0
 
+  function notification(method, params)
+  {
+    return {jsonrpc: '2.0', method, params}
+  }
+
   function request(method, params, callback)
   {
-    let id
-
     // Made `params` optional
     if(params instanceof Function)
     {
@@ -15,14 +18,15 @@ function JsonRpcClient(methods, send)
       params = undefined
     }
 
-    if(callback)
+    let promise = new Promise(function(resolve, reject)
     {
-      id = requestId++
+      responses[requestId] = {reject, resolve}
+    })
 
-      responses[id] = callback
-    }
+    if(callback) promise = promise.then(callback.bind(null, null), callback)
 
-    return {id, jsonrpc: '2.0', method, params}
+    return Object.assign(promise, {id: requestId++},
+      notification(method, params))
   }
 
   function reply(id, error, result)
@@ -34,10 +38,8 @@ function JsonRpcClient(methods, send)
   }
 
   return {
-    notification(method, params)
-    {
-      return request(method, params)
-    },
+    notification,
+    request,
 
     async onMessage({error, id, jsonrpc, method, params, result})
     {
@@ -76,13 +78,16 @@ function JsonRpcClient(methods, send)
 
       // Response
       const response = responses[id]
-      if(!response) return
+      if(!response)
+        return console.warn(`Received response for missing request '${id}':`,
+          error, result)
 
+      const {reject, resolve} = response
       delete responses[id]
-      response(error, result)
-    },
 
-    request
+      if(error) return reject(error)
+      resolve(result)
+    }
   }
 }
 
