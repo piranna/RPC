@@ -4,15 +4,20 @@ function JsonRpcClient(methods, send)
 
   let requestId = 0
 
-  function notification(method, params)
+  function notification(method, ...params)
   {
-    // Check if params where send as an `Object` or an `Array`
-    if(params !== undefined && !(params instanceof Object))
+    if(params.length === 1)
     {
-      const error = new Error('params is not an Object or an Array')
-      error.params = params
+      params = params[0]
 
-      throw error
+      // Check if params where send as an `Object` or an `Array`
+      if(params !== undefined && !(params instanceof Object))
+      {
+        const error = new Error('params is not an Object or an Array')
+        error.params = params
+
+        throw error
+      }
     }
 
     return {jsonrpc: '2.0', method, params}
@@ -20,19 +25,18 @@ function JsonRpcClient(methods, send)
 
   function request(method, params, callback)
   {
-    // Made `params` optional
-    if(params instanceof Function)
-    {
-      callback = params
-      params = undefined
-    }
+    params = Array.from(arguments).slice(1)
+
+    callback = params[params.length-1] instanceof Function
+      ? params.pop()
+      : undefined
 
     let promise = new Promise(resolver)
 
     if(callback) promise = promise.then(callback.bind(null, null), callback)
 
     return Object.assign(promise, {id: requestId++},
-      notification(method, params))
+      notification(method, ...params))
   }
 
   function reply(id, error, result)
