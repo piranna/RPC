@@ -27,10 +27,7 @@ function JsonRpcClient(methods, send)
       params = undefined
     }
 
-    let promise = new Promise(function(resolve, reject)
-    {
-      responses[requestId] = {reject, resolve}
-    })
+    let promise = new Promise(resolver)
 
     if(callback) promise = promise.then(callback.bind(null, null), callback)
 
@@ -45,6 +42,12 @@ function JsonRpcClient(methods, send)
     // Log error responses for notifications
     if(error) console.warn('Error response for notification:', error)
   }
+
+  function resolver(resolve, reject)
+  {
+    responses[requestId] = {reject, resolve}
+  }
+
 
   return {
     notification,
@@ -105,7 +108,7 @@ JsonRpcClient.InvalidJSON = function(data)
 {
   return {
     error: {code: -32700, data, message: 'Invalid JSON'},
-    id: null,  // Spec says `id` must be set to null if it can't be parsed
+    id: null,  // Spec says `id` must be set to `null` if it can't be parsed
     jsonrpc: '2.0'
   }
 }
