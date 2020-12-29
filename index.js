@@ -81,7 +81,7 @@ function JsonRpcClient(methods, send)
         if(!Array.isArray(params)) params = [params]
 
         try {
-          result = await func(...params)
+          result = await func.apply(this, params)
         }
         catch(data)
         {
