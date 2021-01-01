@@ -1,58 +1,46 @@
-const JsonRpcClient = require("..");
+import JsonRpcClient from "..";
 
-test("basic", function (done) {
+test("basic", function () {
   const methods = {
     foo() {
       return "bar";
     },
   };
 
-  function send(data) {
-    expect(data).toEqual({
-      id: 0,
-      jsonrpc: "2.0",
-      result: "bar",
-    });
+  const jsonRpcClient = new JsonRpcClient(methods);
 
-    jsonRpcClient.onMessage(data);
-  }
-
-  const jsonRpcClient = JsonRpcClient(methods, send);
-
-  const data = jsonRpcClient.request("foo", [], function (error, result) {
+  const request = jsonRpcClient.request("foo", function (error, result) {
     expect(error).toBeFalsy();
     expect(result).toBe("bar");
 
-    done();
+    return 'bar 2'
   });
 
-  expect(data).toMatchInlineSnapshot(`
-    Promise {
-      "id": 0,
-      "jsonrpc": "2.0",
-      "method": "foo",
-      "params": Array [],
-    }
-  `);
+  expect(request.valueOf()).toEqual('{"jsonrpc":"2.0","id":0,"method":"foo"}');
+  expect(request.then).toBeInstanceOf(Function);
 
-  jsonRpcClient.onMessage(data);
+  return jsonRpcClient.onMessage(request)
+  .then(function(response) {
+    expect(response).toEqual('{"jsonrpc":"2.0","id":0,"result":"bar"}');
+
+    return jsonRpcClient.onMessage(response);
+  })
+  .then(function()
+  {
+    return request
+  })
+  .then(function(result)
+  {
+    expect(result).toBe("bar 2");
+  });
 });
 
-test("Invalid JsonRPC version 'undefined'", function (done) {
-  function send(data) {
-    expect(data).toEqual({
-      error: {
-        code: -32600,
-        message: "Invalid JsonRPC version 'undefined'",
-      },
-      id: 0,
-      jsonrpc: "2.0",
-    });
+test("Invalid JsonRPC version 'undefined'", function () {
+  const jsonRpcClient = new JsonRpcClient({});
 
-    done();
-  }
-
-  const jsonRpcClient = JsonRpcClient({}, send);
-
-  jsonRpcClient.onMessage({ id: 0 });
+  return jsonRpcClient.onMessage('{"id": 0}')
+  .then(function(data) {
+    expect(data)
+    .toEqual('{"jsonrpc":"2.0","error":{"code":-32600,"message":"Invalid JsonRPC version \'undefined\'"},"id":0}');
+  });
 });

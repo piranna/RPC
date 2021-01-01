@@ -2,8 +2,10 @@
   "name": "@transfast/jsonrpcclient",
   "version": "0.1.3",
   "description": "",
+  "main": "lib",
+  "type": "module",
   "scripts": {
-    "test": "jest --coverage --notify"
+    "test": "node --experimental-vm-modules node_modules/.bin/jest --coverage --notify"
   },
   "repository": {
     "type": "git",
@@ -27,7 +29,7 @@
   "homepage": "https://github.com/Takeafile/JsonRpcClient#readme",
   "jest": {
     "collectCoverageFrom": [
-      "*.js"
+      "lib/*.js"
     ]
   },
   "devDependencies": {
