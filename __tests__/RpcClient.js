@@ -1,5 +1,18 @@
 import RpcClient from "../lib/RpcClient";
 
+test("No methods", function () {
+  const rpcClient = new RpcClient();
+
+  const result = rpcClient.onMessage({ method: "foo" });
+
+  return expect(result).rejects.toMatchInlineSnapshot(`
+    Object {
+      "code": -32603,
+      "message": "Client doesn't accept requests",
+    }
+  `);
+});
+
 test("Method not found", function () {
   const rpcClient = new RpcClient({});
 
