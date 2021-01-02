@@ -41,7 +41,7 @@ test("Invalid JsonRPC version 'undefined'", function () {
 
   return jsonRpcClient.onMessage('{"id": 0}').then(function (data) {
     expect(data).toEqual(
-      '{"jsonrpc":"2.0","error":{"code":-32600,"message":"Invalid JsonRPC version \'undefined\'"},"id":0}'
+      '{"jsonrpc":"2.0","id":0,"error":{"code":-32600,"message":"Invalid JsonRPC version \'undefined\'"}}'
     );
   });
 });

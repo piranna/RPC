@@ -43,12 +43,12 @@ test("Failed method", function () {
     .then(function (response) {
       expect(response).toMatchInlineSnapshot(`
         Object {
+          "ack": 0,
           "error": Object {
             "code": -32500,
             "data": [Error],
             "message": [Error],
           },
-          "id": 0,
           "result": undefined,
         }
       `);
@@ -90,7 +90,7 @@ test("Failed notification", function () {
 test("Unexpected response", function () {
   const rpcClient = new RpcClient();
 
-  const result = rpcClient.onMessage({ id: 0 });
+  const result = rpcClient.onMessage({ ack: 0 });
 
   return expect(result).rejects.toMatchInlineSnapshot(
     `[Error: Received response for unknown request '0']`
@@ -101,7 +101,6 @@ test("notification with spread params", function () {
   const rpcClient = new RpcClient();
 
   const notification = rpcClient.notification("foo", "bar");
-
   expect(notification).toMatchInlineSnapshot(`
     Object {
       "method": "foo",
