@@ -1,65 +1,122 @@
-import JsonRpcClient from "..";
+import Rpc from "..";
 
-test("basic", function () {
+test("No methods", function () {
+  const rpc = new Rpc();
+
+  const result = rpc.onMessage({ method: "foo" });
+
+  return expect(result).rejects.toMatchInlineSnapshot(`
+    Object {
+      "code": -32603,
+      "message": "Client doesn't accept requests",
+    }
+  `);
+});
+
+test("Method not found", function () {
+  const rpc = new Rpc({});
+
+  const result = rpc.onMessage({ method: "foo" });
+
+  return expect(result).rejects.toMatchInlineSnapshot(`
+    Object {
+      "code": -32601,
+      "data": "foo",
+      "message": "Unknown method 'foo'",
+    }
+  `);
+});
+
+test("Failed method", function () {
   const methods = {
     foo() {
-      return "bar";
+      throw new Error();
     },
   };
 
-  const jsonRpcClient = new JsonRpcClient(methods);
+  const rpc = new Rpc(methods);
 
-  const request = jsonRpcClient.request("foo", function (error, result) {
-    expect(error).toBeFalsy();
-    expect(result).toBe("bar");
+  const request = rpc.request("foo");
 
-    return "bar 2";
-  });
-
-  expect(request.valueOf()).toEqual('{"jsonrpc":"2.0","id":0,"method":"foo"}');
-  expect(request.then).toBeInstanceOf(Function);
-
-  return jsonRpcClient
+  return rpc
     .onMessage(request)
     .then(function (response) {
-      expect(response).toEqual('{"jsonrpc":"2.0","id":0,"result":"bar"}');
+      expect(response).toMatchInlineSnapshot(`
+        Object {
+          "ack": 0,
+          "error": Object {
+            "code": -32500,
+            "data": [Error],
+            "message": [Error],
+          },
+          "result": undefined,
+        }
+      `);
 
-      return jsonRpcClient.onMessage(response);
+      return rpc.onMessage(response);
     })
     .then(function (result) {
       expect(result).toBeUndefined();
 
-      return request;
-    })
-    .then(function (result) {
-      expect(result).toBe("bar 2");
+      return expect(request).rejects.toMatchInlineSnapshot(`
+        Object {
+          "code": -32500,
+          "data": [Error],
+          "message": [Error],
+        }
+      `);
     });
 });
 
-test("Invalid JsonRPC version 'undefined'", function () {
-  const jsonRpcClient = new JsonRpcClient();
+test("Failed notification", function () {
+  const methods = {
+    foo() {
+      const error = new Error();
+      error.code = 1234;
 
-  return jsonRpcClient.onMessage('{"id": 0}').then(function (data) {
-    expect(data).toEqual(
-      '{"jsonrpc":"2.0","id":0,"error":{"code":-32600,"message":"Invalid JsonRPC version \'undefined\'"}}'
-    );
-  });
+      throw error;
+    },
+  };
+
+  const rpc = new Rpc(methods);
+
+  const notification = rpc.notification("foo");
+
+  const result = rpc.onMessage(notification);
+
+  return expect(result).rejects.toMatchInlineSnapshot(`[Error]`);
 });
 
-test("Invalid JSON", function () {
-  const jsonRpcClient = new JsonRpcClient();
+test("Unexpected response", function () {
+  const rpc = new Rpc();
 
-  return jsonRpcClient.onMessage('foo')
-  .then(function(data)
-  {
-    expect(data).toEqual('{"jsonrpc":"2.0","error":{"code":-32700,"data":{},"message":"Invalid JSON"},"id":null}')
-  });
+  const result = rpc.onMessage({ ack: 0 });
+
+  return expect(result).rejects.toMatchInlineSnapshot(
+    `[Error: Received response for unknown request '0']`
+  );
 });
 
-test("notification", function () {
-  const jsonRpcClient = new JsonRpcClient();
+test("notification with spread params", function () {
+  const rpc = new Rpc();
 
-  const notification = jsonRpcClient.notification('foo', ['bar'])
+  const notification = rpc.notification("foo", "bar");
+  expect(notification).toMatchInlineSnapshot(`
+    Object {
+      "method": "foo",
+      "params": Array [
+        "bar",
+      ],
+    }
+  `);
+});
 
-  expect(notification).toEqual('{"jsonrpc":"2.0","method":"foo","params":["bar"]}')
+test("notification with array params", function () {
+  const rpc = new Rpc({
+    foo() {},
+  });
+
+  const notification = rpc.notification("foo", ["bar"]);
+
+  return rpc.onMessage(notification);
 });
