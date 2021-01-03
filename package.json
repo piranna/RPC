@@ -1,5 +1,5 @@
 {
-  "name": "@transfast/jsonrpcclient",
+  "name": "@piranna/rpc",
   "version": "0.1.3",
   "description": "",
   "main": "lib",
@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Takeafile/JsonRpcClient.git"
+    "url": "git+https://github.com/piranna/rpc.git"
   },
   "keywords": [
     "transfast",
@@ -24,9 +24,9 @@
   "author": "Jesús Leganés-Combarro 'piranna' <piranna@gmail.com>",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Takeafile/JsonRpcClient/issues"
+    "url": "https://github.com/piranna/rpc/issues"
   },
-  "homepage": "https://github.com/Takeafile/JsonRpcClient#readme",
+  "homepage": "https://github.com/piranna/rpc#readme",
   "jest": {
     "collectCoverageFrom": [
       "lib/*.js"
