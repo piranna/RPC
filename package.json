@@ -29,7 +29,7 @@
   "homepage": "https://github.com/piranna/rpc#readme",
   "jest": {
     "collectCoverageFrom": [
-      "lib/*.js"
+      "lib/**/*.js"
     ]
   },
   "devDependencies": {
