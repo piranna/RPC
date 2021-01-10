@@ -1,32 +1,5 @@
 import Rpc from "..";
 
-test("No methods", function () {
-  const rpc = new Rpc();
-
-  const result = rpc.onMessage({ method: "foo" });
-
-  return expect(result).rejects.toMatchInlineSnapshot(`
-    Object {
-      "code": -32603,
-      "message": "Client doesn't accept requests",
-    }
-  `);
-});
-
-test("Method not found", function () {
-  const rpc = new Rpc({});
-
-  const result = rpc.onMessage({ method: "foo" });
-
-  return expect(result).rejects.toMatchInlineSnapshot(`
-    Object {
-      "code": -32601,
-      "data": "foo",
-      "message": "Unknown method 'foo'",
-    }
-  `);
-});
-
 test("Failed method", function () {
   const methods = {
     foo() {
@@ -66,25 +39,6 @@ test("Failed method", function () {
         }
       `);
     });
-});
-
-test("Failed notification", function () {
-  const methods = {
-    foo() {
-      const error = new Error();
-      error.code = 1234;
-
-      throw error;
-    },
-  };
-
-  const rpc = new Rpc(methods);
-
-  const notification = rpc.notification("foo");
-
-  const result = rpc.onMessage(notification);
-
-  return expect(result).rejects.toMatchInlineSnapshot(`[Error]`);
 });
 
 test("Unexpected response", function () {
