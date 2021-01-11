@@ -16,27 +16,22 @@ test("basic", function () {
     return "bar 2";
   });
 
-  expect(request).toMatchInlineSnapshot(`
-    Object {
-      "id": 0,
-      "then": [Function],
-      "xml": "<?xml version=\\"1.0\\"?><methodCall><methodName>foo</methodName></methodCall>",
-    }
-  `);
+  expect(request).toMatchObject({
+    ack: undefined,
+    id: 0
+  })
+  expect(request.valueOf()).toBe('<?xml version="1.0"?><methodCall><methodName>foo</methodName></methodCall>')
 
   return xmlRpc
-    .onMessage(request.xml, request.id)
+    .onMessage(request, request.id)
     .then(function (response) {
-      expect(response).toMatchInlineSnapshot(`
-        Object {
-          "ack": 0,
-          "error": undefined,
-          "result": "bar",
-          "xml": "<?xml version=\\"1.0\\"?><methodResponse><params><param><value><string>bar</string></value></param></params></methodResponse>",
-        }
-      `);
+      expect(response).toMatchObject({
+        ack: 0,
+        id: undefined
+      })
+      expect(response.valueOf()).toBe('<?xml version="1.0"?><methodResponse><params><param><value><string>bar</string></value></param></params></methodResponse>')
 
-      return xmlRpc.onMessage(response.xml, response.ack);
+      return xmlRpc.onMessage(response, response.ack);
     })
     .then(function (result) {
       expect(result).toBeUndefined();
@@ -53,17 +48,14 @@ test("Invalid XmlRPC", function () {
 
   const result = xmlRpc.onMessage('<?xml version="1.0"?><foo/>', 0);
 
-  return expect(result).resolves.toMatchInlineSnapshot(`
-    Object {
-      "ack": 0,
-      "error": Object {
-        "code": -32600,
-        "data": [Error: Unknown node 'foo'],
-        "message": "server error. invalid xml-rpc. not conforming to spec.",
-      },
-      "xml": "<?xml version=\\"1.0\\"?><methodResponse><fault><value><struct><member><name>faultCode</name><value><i4>-32600</i4></value></member><member><name>faultString</name><value><string>server error. invalid xml-rpc. not conforming to spec.</string></value></member></struct></value></fault></methodResponse>",
-    }
-  `);
+  return result.then(function(result)
+  {
+    expect(result).toMatchObject({
+      ack: 0,
+      id: undefined
+    })
+    expect(result.valueOf()).toBe('<?xml version="1.0"?><methodResponse><fault><value><struct><member><name>faultCode</name><value><i4>-32600</i4></value></member><member><name>faultString</name><value><string>server error. invalid xml-rpc. not conforming to spec.</string></value></member></struct></value></fault></methodResponse>')
+  })
 });
 
 test("Invalid XML", function () {
@@ -71,19 +63,14 @@ test("Invalid XML", function () {
 
   const result = xmlRpc.onMessage("foo");
 
-  return expect(result).resolves.toMatchInlineSnapshot(`
-    Object {
-      "ack": undefined,
-      "error": Object {
-        "code": -32700,
-        "data": Document {
-          "location": null,
-        },
-        "message": "parse error. not well formed",
-      },
-      "xml": "<?xml version=\\"1.0\\"?><methodResponse><fault><value><struct><member><name>faultCode</name><value><i4>-32700</i4></value></member><member><name>faultString</name><value><string>parse error. not well formed</string></value></member></struct></value></fault></methodResponse>",
-    }
-  `);
+  return result.then(function(result)
+  {
+    expect(result).toMatchObject({
+      ack: undefined,
+      id: undefined
+    })
+    expect(result.valueOf()).toBe('<?xml version="1.0"?><methodResponse><fault><value><struct><member><name>faultCode</name><value><i4>-32700</i4></value></member><member><name>faultString</name><value><string>parse error. not well formed</string></value></member></struct></value></fault></methodResponse>')
+  })
 });
 
 test("notification", function () {
@@ -91,13 +78,5 @@ test("notification", function () {
 
   const notification = xmlRpc.notification("foo", ["bar"]);
 
-  expect(notification).toMatchInlineSnapshot(`
-    Object {
-      "method": "foo",
-      "params": Array [
-        "bar",
-      ],
-      "xml": "<?xml version=\\"1.0\\"?><methodCall><methodName>foo</methodName><params><param><value><string>bar</string></value></param></params></methodCall>",
-    }
-  `);
+  expect(notification.valueOf()).toBe('<?xml version="1.0"?><methodCall><methodName>foo</methodName><params><param><value><string>bar</string></value></param></params></methodCall>')
 });
