@@ -33,7 +33,8 @@ test("Invalid method params", function () {
 
   const request = rpc.request("foo");
 
-  return rpc
+  return Promise.all([
+    rpc
     .onMessage(request)
     .then(function (response) {
       expect(response).toMatchInlineSnapshot(`
@@ -48,19 +49,18 @@ test("Invalid method params", function () {
         }
       `);
 
-      return rpc.onMessage(response);
-    })
-    .then(function (result) {
-      expect(result).toBeUndefined();
+      const result = rpc.onMessage(response);
 
-      return expect(request).rejects.toMatchInlineSnapshot(`
-        Object {
-          "code": -32602,
-          "data": [Error],
-          "message": [Error],
-        }
-      `);
-    });
+      return expect(result).resolves.toBeUndefined();
+    }),
+    expect(request).rejects.toMatchInlineSnapshot(`
+      Object {
+        "code": -32602,
+        "data": [Error],
+        "message": [Error],
+      }
+    `)
+  ])
 });
 
 test("Failed method", function () {
@@ -74,7 +74,8 @@ test("Failed method", function () {
 
   const request = rpc.request("foo");
 
-  return rpc
+  return Promise.all([
+    rpc
     .onMessage(request)
     .then(function (response) {
       expect(response).toMatchInlineSnapshot(`
@@ -89,19 +90,18 @@ test("Failed method", function () {
         }
       `);
 
-      return rpc.onMessage(response);
-    })
-    .then(function (result) {
-      expect(result).toBeUndefined();
+      const result = rpc.onMessage(response);
 
-      return expect(request).rejects.toMatchInlineSnapshot(`
-        Object {
-          "code": -32500,
-          "data": [Error],
-          "message": [Error],
-        }
-      `);
-    });
+      return expect(result).resolves.toBeUndefined();
+    }),
+    expect(request).rejects.toMatchInlineSnapshot(`
+      Object {
+        "code": -32500,
+        "data": [Error],
+        "message": [Error],
+      }
+    `)
+  ])
 });
 
 test("Unexpected response", function () {
@@ -118,6 +118,7 @@ test("notification with spread params", function () {
   const rpc = new Rpc();
 
   const notification = rpc.notification("foo", "bar");
+
   expect(notification).toMatchInlineSnapshot(`
     Object {
       "method": "foo",

@@ -19,41 +19,34 @@ test("basic", function () {
   expect(request.valueOf()).toEqual('{"id":0,"jsonrpc":"2.0","method":"foo"}');
   expect(request.then).toBeInstanceOf(Function);
 
-  return jsonRpc
+  return Promise.all([
+    jsonRpc
     .onMessage(request)
     .then(function (response) {
       expect(response).toEqual('{"id":0,"jsonrpc":"2.0","result":"bar"}');
 
-      return jsonRpc.onMessage(response);
-    })
-    .then(function (result) {
-      expect(result).toBeUndefined();
+      const result = jsonRpc.onMessage(response);
 
-      return request;
+      return expect(result).resolves.toBeUndefined();
     })
-    .then(function (result) {
-      expect(result).toBe("bar 2");
-    });
+  ]),
+  expect(request).resolves.toBe("bar 2");
 });
 
 test("Invalid JsonRPC version 'undefined'", function () {
   const jsonRpc = new JsonRpc();
 
-  return jsonRpc.onMessage('{"id": 0}').then(function (data) {
-    expect(data).toEqual(
-      '{"error":{"code":-32600,"message":"Invalid JsonRPC version \'undefined\'"},"id":0,"jsonrpc":"2.0"}'
-    );
-  });
+  const result = jsonRpc.onMessage('{"id": 0}')
+
+  return expect(result).resolves.toEqual('{"error":{"code":-32600,"message":"Invalid JsonRPC version \'undefined\'"},"id":0,"jsonrpc":"2.0"}');
 });
 
 test("Invalid JSON", function () {
   const jsonRpc = new JsonRpc();
 
-  return jsonRpc.onMessage('foo')
-  .then(function(data)
-  {
-    expect(data).toEqual('{"error":{"code":-32700,"data":{},"message":"Invalid JSON"},"id":null,"jsonrpc":"2.0"}')
-  });
+  const result = jsonRpc.onMessage('foo')
+
+  return expect(result).resolves.toEqual('{"error":{"code":-32700,"data":{},"message":"Invalid JSON"},"id":null,"jsonrpc":"2.0"}')
 });
 
 test("No methods", function () {

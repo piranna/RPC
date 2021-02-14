@@ -22,7 +22,8 @@ test("basic", function () {
   })
   expect(request.valueOf()).toBe('<?xml version="1.0"?><methodCall><methodName>foo</methodName></methodCall>')
 
-  return xmlRpc
+  return Promise.all([
+    xmlRpc
     .onMessage(request, request.id)
     .then(function (response) {
       expect(response).toMatchObject({
@@ -31,16 +32,12 @@ test("basic", function () {
       })
       expect(response.valueOf()).toBe('<?xml version="1.0"?><methodResponse><params><param><value><string>bar</string></value></param></params></methodResponse>')
 
-      return xmlRpc.onMessage(response, response.ack);
-    })
-    .then(function (result) {
-      expect(result).toBeUndefined();
+      const result = xmlRpc.onMessage(response, response.ack);
 
-      return request;
-    })
-    .then(function (result) {
-      expect(result).toBe("bar 2");
-    });
+      return expect(result).resolves.toBeUndefined()
+    }),
+    expect(request).resolves.toBe("bar 2")
+  ]);
 });
 
 test("Invalid XmlRPC", function () {
