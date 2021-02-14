@@ -1,23 +1,65 @@
 import Rpc from "..";
 
-test("no arguments for onMessage", function () {
-  const rpc = new Rpc();
+describe("onMessage", function () {
+  test("no arguments for onMessage", function () {
+    const rpc = new Rpc();
 
-  const result = rpc.onMessage();
+    const result = rpc.onMessage();
 
-  return expect(result).rejects.toMatchInlineSnapshot(
-    `[TypeError: Cannot destructure property 'ack' of 'undefined' as it is undefined.]`
-  );
+    return expect(result).rejects.toMatchInlineSnapshot(
+      `[TypeError: Cannot destructure property 'ack' of 'undefined' as it is undefined.]`
+    );
+  });
+
+  test("Invalid message", function () {
+    const rpc = new Rpc();
+
+    const result = rpc.onMessage({});
+
+    return expect(result).rejects.toMatchInlineSnapshot(
+      `[TypeError: Received invalid message]`
+    );
+  });
+
+  test("Unexpected response", function () {
+    const rpc = new Rpc();
+
+    const result = rpc.onMessage({ ack: 0 });
+
+    return expect(result).rejects.toMatchInlineSnapshot(
+      `[Error: Received response for unknown request '0']`
+    );
+  });
 });
 
-test("Invalid message", function () {
-  const rpc = new Rpc();
+describe("Mixed message", function () {
+  test("Response", function () {
+    const methods = {
+      foo() {},
+    };
 
-  const result = rpc.onMessage({});
+    const rpc = new Rpc(methods);
 
-  return expect(result).rejects.toMatchInlineSnapshot(
-    `[TypeError: Received invalid message]`
-  );
+    rpc.request("foo");
+
+    const result = rpc.onMessage({ ack: 0, method: "foo" });
+
+    return expect(result).resolves.toMatchInlineSnapshot(`undefined`);
+  });
+
+  test("Unexpected response", function () {
+    const rpc = new Rpc();
+
+    const result = rpc.onMessage({ ack: 0, method: "foo" });
+
+    return expect(result).resolves.toMatchInlineSnapshot(`
+      Object {
+        "ack": undefined,
+        "error": [Error: Received response for unknown request '0'],
+        "result": undefined,
+      }
+    `);
+  });
 });
 
 test("Invalid method params", function () {
@@ -34,9 +76,7 @@ test("Invalid method params", function () {
   const request = rpc.request("foo");
 
   return Promise.all([
-    rpc
-    .onMessage(request)
-    .then(function (response) {
+    rpc.onMessage(request).then(function (response) {
       expect(response).toMatchInlineSnapshot(`
         Object {
           "ack": 0,
@@ -59,8 +99,8 @@ test("Invalid method params", function () {
         "data": [Error],
         "message": [Error],
       }
-    `)
-  ])
+    `),
+  ]);
 });
 
 test("Failed method", function () {
@@ -75,9 +115,7 @@ test("Failed method", function () {
   const request = rpc.request("foo");
 
   return Promise.all([
-    rpc
-    .onMessage(request)
-    .then(function (response) {
+    rpc.onMessage(request).then(function (response) {
       expect(response).toMatchInlineSnapshot(`
         Object {
           "ack": 0,
@@ -100,18 +138,8 @@ test("Failed method", function () {
         "data": [Error],
         "message": [Error],
       }
-    `)
-  ])
-});
-
-test("Unexpected response", function () {
-  const rpc = new Rpc();
-
-  const result = rpc.onMessage({ ack: 0 });
-
-  return expect(result).rejects.toMatchInlineSnapshot(
-    `[Error: Received response for unknown request '0']`
-  );
+    `),
+  ]);
 });
 
 test("notification with spread params", function () {
