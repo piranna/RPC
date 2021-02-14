@@ -44,6 +44,16 @@ describe("onMessage", function () {
     );
   });
 
+  test("Invalid JsonRPC version 'undefined' no id", function () {
+    const jsonRpc = new JsonRpc();
+
+    const result = jsonRpc.onMessage('{}');
+
+    return expect(result).resolves.toEqual(
+      '{"error":{"code":-32600,"message":"Invalid JsonRPC version \'undefined\'"},"id":null,"jsonrpc":"2.0"}'
+    );
+  });
+
   test("Invalid JSON", function () {
     const jsonRpc = new JsonRpc();
 
