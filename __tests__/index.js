@@ -1,5 +1,25 @@
 import Rpc from "..";
 
+test("no arguments for onMessage", function () {
+  const rpc = new Rpc();
+
+  const result = rpc.onMessage();
+
+  return expect(result).rejects.toMatchInlineSnapshot(
+    `[TypeError: Cannot destructure property 'ack' of 'undefined' as it is undefined.]`
+  );
+});
+
+test("Invalid message", function () {
+  const rpc = new Rpc();
+
+  const result = rpc.onMessage({});
+
+  return expect(result).rejects.toMatchInlineSnapshot(
+    `[TypeError: Received invalid message]`
+  );
+});
+
 test("Invalid method params", function () {
   function foo() {}
 
