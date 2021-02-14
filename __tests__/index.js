@@ -1,5 +1,48 @@
 import Rpc from "..";
 
+test("Invalid method params", function () {
+  function foo() {}
+
+  foo.validateParams = function () {
+    throw new Error();
+  };
+
+  const methods = { foo };
+
+  const rpc = new Rpc(methods);
+
+  const request = rpc.request("foo");
+
+  return rpc
+    .onMessage(request)
+    .then(function (response) {
+      expect(response).toMatchInlineSnapshot(`
+        Object {
+          "ack": 0,
+          "error": Object {
+            "code": -32602,
+            "data": [Error],
+            "message": [Error],
+          },
+          "result": undefined,
+        }
+      `);
+
+      return rpc.onMessage(response);
+    })
+    .then(function (result) {
+      expect(result).toBeUndefined();
+
+      return expect(request).rejects.toMatchInlineSnapshot(`
+        Object {
+          "code": -32602,
+          "data": [Error],
+          "message": [Error],
+        }
+      `);
+    });
+});
+
 test("Failed method", function () {
   const methods = {
     foo() {
