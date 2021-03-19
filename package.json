@@ -19,7 +19,8 @@
     "webrtc",
     "p2p",
     "json",
-    "jsonrpc"
+    "jsonrpc",
+    "xmlrpc"
   ],
   "author": "Jesús Leganés-Combarro 'piranna' <piranna@gmail.com>",
   "license": "ISC",
