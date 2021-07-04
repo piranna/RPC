@@ -46,5 +46,6 @@
   },
   "dependencies": {
     "xmlrpc-serialization": "^1.0.0"
+    "object-path": "^0.11.5",
   }
 }
