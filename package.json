@@ -2,7 +2,14 @@
   "name": "@piranna/rpc",
   "version": "0.1.3",
   "description": "",
-  "main": "lib",
+  "exports": {
+    ".": "./lib/index.js",
+    "./JsonRpc": "./lib/JsonRpc.js",
+    "./XmlRpc": {
+      "node": "./lib/XmlRpc_node.js",
+      "default": "./lib/XmlRpc.js"
+    }
+  },
   "type": "module",
   "scripts": {
     "test": "node --experimental-vm-modules node_modules/.bin/jest --coverage --notify"
