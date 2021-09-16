@@ -23,7 +23,7 @@ test("basic", function () {
     jsonRpc
     .onMessage(request)
     .then(function (response) {
-      expect(response).toEqual('{"id":0,"jsonrpc":"2.0","result":"bar"}');
+      expect(response.valueOf()).toEqual('{"id":0,"jsonrpc":"2.0","result":"bar"}');
 
       const result = jsonRpc.onMessage(response);
 
@@ -37,21 +37,23 @@ describe("onMessage", function () {
   test("Invalid JsonRPC version 'undefined'", function () {
     const jsonRpc = new JsonRpc();
 
-    const result = jsonRpc.onMessage('{"id": 0}');
-
-    return expect(result).resolves.toEqual(
-      '{"error":{"code":-32600,"message":"Invalid JsonRPC version \'undefined\'"},"id":0,"jsonrpc":"2.0"}'
-    );
+    return jsonRpc.onMessage('{"id": 0}')
+    .then(function (result) {
+      expect(result.valueOf()).toEqual(
+        '{"error":{"code":-32600,"message":"Invalid JsonRPC version \'undefined\'"},"id":0,"jsonrpc":"2.0"}'
+      );
+    })
   });
 
   test("Invalid JsonRPC version 'undefined' no id", function () {
     const jsonRpc = new JsonRpc();
 
-    const result = jsonRpc.onMessage('{}');
-
-    return expect(result).resolves.toEqual(
-      '{"error":{"code":-32600,"message":"Invalid JsonRPC version \'undefined\'"},"id":null,"jsonrpc":"2.0"}'
-    );
+    return jsonRpc.onMessage('{}')
+    .then(function(result) {
+      expect(result.valueOf()).toEqual(
+        '{"error":{"code":-32600,"message":"Invalid JsonRPC version \'undefined\'"},"id":null,"jsonrpc":"2.0"}'
+      );
+    })
   });
 
   test("Invalid JSON", function () {
@@ -113,13 +115,14 @@ describe("onMessage", function () {
   test("Request with `null` id", function () {
     const jsonRpc = new JsonRpc({});
 
-    const result = jsonRpc.onMessage(
+    return jsonRpc.onMessage(
       '{"jsonrpc":"2.0","id":null,"method":"foo"}'
-    );
-
-    return expect(result).resolves.toEqual(
-      '{"error":{"code":-32601,"data":"foo","message":"Unknown method \'foo\'"},"id":null,"jsonrpc":"2.0"}'
-    );
+    )
+    .then(function(result) {
+      expect(result.valueOf()).toEqual(
+        '{"error":{"code":-32601,"data":"foo","message":"Unknown method \'foo\'"},"id":null,"jsonrpc":"2.0"}'
+      );
+    })
   });
 });
 
@@ -128,7 +131,7 @@ test("notification", function () {
 
   const notification = jsonRpc.notification("foo", ["bar"]);
 
-  expect(notification).toEqual(
+  expect(notification.valueOf()).toEqual(
     '{"jsonrpc":"2.0","method":"foo","params":["bar"]}'
   );
 });
