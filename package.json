@@ -34,12 +34,11 @@
     ]
   },
   "devDependencies": {
-    "jest-cli": "^26.6.3",
-    "prettier": "^2.2.1"
+    "jest-cli": "^27.2.0"
   },
   "dependencies": {
     "error-to-json": "^2.0.0",
-    "object-path": "^0.11.5",
-    "xmlrpc-serialization": "^1.0.0"
+    "object-path": "^0.11.7",
+    "xmlrpc-serialization": "^2.0.0"
   }
 }
