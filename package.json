@@ -5,7 +5,7 @@
   "type": "module",
   "main": "lib",
   "scripts": {
-    "test": "node --experimental-vm-modules node_modules/.bin/jest --coverage --notify"
+    "test": "node --experimental-vm-modules node_modules/.bin/jest"
   },
   "repository": {
     "type": "git",
@@ -29,6 +29,7 @@
   },
   "homepage": "https://github.com/piranna/rpc#readme",
   "jest": {
+    "collectCoverage": true,
     "collectCoverageFrom": [
       "lib/**/*.js"
     ]
