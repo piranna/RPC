@@ -57,11 +57,22 @@ describe("onMessage", function () {
   test("Invalid JSON", function () {
     const jsonRpc = new JsonRpc();
 
-    const result = jsonRpc.onMessage("foo");
-
-    return expect(result).resolves.toEqual(
-      '{"error":{"code":-32700,"data":{},"message":"Invalid JSON"},"id":null,"jsonrpc":"2.0"}'
-    );
+    return jsonRpc.onMessage("foo")
+    .then(function(result) {
+      expect(JSON.parse(result)).toMatchObject(
+        {
+          error: {
+            code: -32700,
+            data: expect.stringMatching(
+              /^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/
+            ),
+            message: "Invalid JSON"
+          },
+          id: null,
+          jsonrpc: "2.0"
+        }
+      );
+    })
   });
 
   test("No methods", function () {
