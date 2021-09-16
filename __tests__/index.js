@@ -83,7 +83,7 @@ test("Invalid method params", function () {
           "error": Object {
             "code": -32602,
             "data": [Error],
-            "message": [Error],
+            "message": "",
           },
           "result": undefined,
         }
@@ -97,7 +97,7 @@ test("Invalid method params", function () {
       Object {
         "code": -32602,
         "data": [Error],
-        "message": [Error],
+        "message": "",
       }
     `),
   ]);
@@ -122,7 +122,7 @@ test("Failed method", function () {
           "error": Object {
             "code": -32500,
             "data": [Error],
-            "message": [Error],
+            "message": "",
           },
           "result": undefined,
         }
@@ -136,7 +136,7 @@ test("Failed method", function () {
       Object {
         "code": -32500,
         "data": [Error],
-        "message": [Error],
+        "message": "",
       }
     `),
   ]);
