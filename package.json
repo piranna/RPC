@@ -3,9 +3,17 @@
   "version": "0.1.4",
   "description": "",
   "type": "module",
-  "main": "lib",
+  "main": "dist/cjs",
+  "module": "dist/es",
+  "exports": {
+    ".": {
+      "require": "./dist/cjs",
+      "import": "./dist/es"
+    }
+  },
   "scripts": {
-    "test": "node --experimental-vm-modules node_modules/.bin/jest"
+    "test": "node --experimental-vm-modules node_modules/.bin/jest",
+    "build": "rollup -c"
   },
   "repository": {
     "type": "git",
@@ -35,7 +43,8 @@
     ]
   },
   "devDependencies": {
-    "jest-cli": "^27.2.0"
+    "jest-cli": "^27.2.0",
+    "rollup": "^2.57.0"
   },
   "dependencies": {
     "error-to-json": "^2.0.0",
