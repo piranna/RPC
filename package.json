@@ -12,7 +12,8 @@
     }
   },
   "scripts": {
-    "test": "node --experimental-vm-modules node_modules/.bin/jest"
+    "test": "node --experimental-vm-modules node_modules/.bin/jest",
+    "build": "rollup -c"
   },
   "repository": {
     "type": "git",
