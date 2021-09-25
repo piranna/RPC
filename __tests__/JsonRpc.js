@@ -1,4 +1,4 @@
-import JsonRpc from "../lib/JsonRpc";
+import JsonRpc from "@piranna/rpc/JsonRpc";
 
 test("basic", function () {
   const methods = {

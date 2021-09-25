@@ -1,4 +1,4 @@
-import Rpc from "..";
+import Rpc from "@piranna/rpc";
 
 describe("onMessage", function () {
   test("no arguments for onMessage", function () {

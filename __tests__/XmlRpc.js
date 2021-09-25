@@ -1,4 +1,4 @@
-import XmlRpc from "../lib/XmlRpc";
+import XmlRpc from "@piranna/rpc/XmlRpc";
 
 test("basic", function () {
   const methods = {
