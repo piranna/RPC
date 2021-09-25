@@ -1,7 +1,7 @@
 {
   "name": "@piranna/rpc",
   "version": "0.1.4",
-  "description": "",
+  "description": "Transport agnostic and polyglot RPC",
   "type": "module",
   "main": ".",
   "module": "lib",
