@@ -102,3 +102,11 @@ dist
 
 # TernJS port file
 .tern-port
+
+/Batch.js
+/JsonRpc.js
+/JsonRpcBatch.js
+/XmlRpc_node.js
+/XmlRpc.js
+/XmlRpcBatch.js
+/index.js
