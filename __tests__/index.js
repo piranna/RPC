@@ -44,7 +44,7 @@ describe("Mixed message", function () {
 
     const result = rpc.onMessage({ ack: 0, method: "foo" });
 
-    return expect(result).resolves.toMatchInlineSnapshot(`undefined`);
+    return expect(result).resolves.toBeUndefined();
   });
 
   test("Unexpected response", function () {

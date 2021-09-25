@@ -5,7 +5,6 @@ const LIB_DIR = path.join('.', 'lib');
 const CJS_DIR = path.join('.');
 
 const files = fs.readdirSync(LIB_DIR);
-console.log(files);
 
 const config = files.map((file) => ({
     external: [
