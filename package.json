@@ -8,19 +8,19 @@
   "exports": {
     ".": {
       "import": "./lib/index.js",
-      "require": "./index.js"
+      "require": "./index.cjs"
     },
     "./JsonRpc": {
       "import": "./lib/JsonRpc.js",
-      "require": "./JsonRpc.js"
+      "require": "./JsonRpc.cjs"
     },
     "./XmlRpc": {
       "node": {
         "import": "./lib/XmlRpc_node.js",
-        "require": "./XmlRpc_node.js"
+        "require": "./XmlRpc_node.cjs"
       },
       "import": "./lib/XmlRpc.js",
-      "require": "./XmlRpc.js"
+      "require": "./XmlRpc.cjs"
     }
   },
   "scripts": {
