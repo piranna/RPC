@@ -113,7 +113,12 @@ describe("onMessage", function () {
   });
 
   test("Request with `null` id", function () {
-    const jsonRpc = new JsonRpc({});
+    const jsonRpc = new JsonRpc({}, {
+      onWarn(message)
+      {
+        expect(message).toBe("Using `null` as requests `id` is discouraged");
+      }
+    });
 
     return jsonRpc.onMessage(
       '{"jsonrpc":"2.0","id":null,"method":"foo"}'
