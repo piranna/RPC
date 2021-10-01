@@ -62,8 +62,9 @@
     "rollup": "^2.57.0"
   },
   "dependencies": {
+    "@xmldom/xmldom": "^0.7.5",
     "error-to-json": "^2.0.0",
     "object-path": "^0.11.8",
-    "xmlrpc-serialization": "^2.0.0"
+    "xmlrpc-serialization": "piranna/XmlRPC-serialization"
   }
 }

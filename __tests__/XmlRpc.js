@@ -19,7 +19,8 @@ test("basic", function () {
   expect(request).toMatchObject({
     ack: undefined,
     error: undefined,
-    id: 0
+    id: 0,
+    then: expect.any(Function)
   });
   expect(request.valueOf()).toBe(
     '<?xml version="1.0"?><methodCall><methodName>foo</methodName></methodCall>'
@@ -53,7 +54,11 @@ test("Invalid XmlRPC", function () {
   return result.then(function (result) {
     expect(result).toMatchObject({
       ack: 0,
-      error: new Error("Unknown node 'foo'"),
+      error: {
+        code: -32600,
+        data: new Error("Unknown node 'foo'"),
+        message: 'server error. invalid xml-rpc. not conforming to spec.'
+      },
       id: undefined,
       then: undefined
     });
@@ -71,10 +76,10 @@ test("Invalid XML", function () {
   return result.then(function (result) {
     expect(result).toMatchObject({
       ack: undefined,
+      error: {code: -32700, message: 'parse error. not well formed'},
       id: undefined,
       then: undefined
     });
-    expect(result.error).toBeDefined()
     expect(result.valueOf()).toBe(
       '<?xml version="1.0"?><methodResponse><fault><value><struct><member><name>faultCode</name><value><i4>-32700</i4></value></member><member><name>faultString</name><value><string>parse error. not well formed</string></value></member></struct></value></fault></methodResponse>'
     );
