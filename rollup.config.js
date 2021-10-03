@@ -4,6 +4,11 @@ import { basename, join } from 'path';
 const LIB_DIR = join('.', 'lib');
 const CJS_DIR = join('.');
 
+const external = [
+    '.', '@journeyapps/domparser', '@xmldom/xmldom', 'crypto', 'error-to-json',
+    'object-path', 'xmlrpc-serialization'
+]
+
 const files = fs.readdirSync(LIB_DIR);
 
 const config = files.map(function(file)
@@ -11,10 +16,7 @@ const config = files.map(function(file)
     const outputFile = basename(file, '.js') + '.cjs';
 
     return {
-        external: [
-            '.', '@journeyapps/domparser', 'crypto', 'error-to-json',
-            'object-path', 'xmlrpc-serialization'
-        ],
+        external,
         input: join(LIB_DIR, file),
         output: [
             {
