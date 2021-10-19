@@ -57,7 +57,7 @@
     "resolver": "jest-node-exports-resolver"
   },
   "devDependencies": {
-    "jest-cli": "^27.2.4",
+    "jest-cli": "^27.3.1",
     "jest-node-exports-resolver": "github:Mafalda-SFU/jest-node-exports-resolver",
     "rollup": "^2.58.0"
   },
