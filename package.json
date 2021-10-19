@@ -3,7 +3,7 @@
   "version": "0.2.1",
   "description": "Transport agnostic and polyglot RPC",
   "type": "module",
-  "main": ".",
+  "main": "index.cjs",
   "module": "lib",
   "exports": {
     ".": {
