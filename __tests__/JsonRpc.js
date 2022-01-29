@@ -56,25 +56,58 @@ describe("onMessage", function () {
     })
   });
 
-  test("Invalid JSON", function () {
-    const jsonRpc = new JsonRpc();
+  describe("Invalid JSON", function () {
+    test("hide full errors", function () {
+      const jsonRpc = new JsonRpc();
 
-    return jsonRpc.onMessage("foo")
-    .then(function(result) {
-      expect(JSON.parse(result)).toMatchObject(
-        {
-          error: {
-            code: -32700,
-            data: expect.stringMatching(
-              /^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/
-            ),
-            message: "Invalid JSON"
-          },
-          id: null,
-          jsonrpc: "2.0"
-        }
-      );
-    })
+      return jsonRpc.onMessage("foo")
+      .then(function(result) {
+        expect(JSON.parse(result)).toMatchObject(
+          {
+            error: {
+              code: -32700,
+              data: expect.stringMatching(
+                /^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/
+              ),
+              message: "Invalid JSON"
+            },
+            id: null,
+            jsonrpc: "2.0"
+          }
+        );
+      })
+    });
+
+    test("send full errors", function () {
+      const jsonRpc = new JsonRpc(null, {sendFullErrors: true});
+
+      return jsonRpc.onMessage("foo")
+      .then(function(result) {
+        expect(JSON.parse(result)).toMatchObject(
+          {
+            error: {
+              code: -32700,
+              data: {
+                message: "Unexpected token o in JSON at position 1",
+                name: "SyntaxError",
+                stack: expect.stringContaining("SyntaxError: Unexpected token o in JSON at position 1"),
+                uuid: expect.stringMatching(
+                  /^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/
+                )
+              },
+              message: "Invalid JSON"
+            },
+            id: null,
+            jsonrpc: "2.0"
+          }
+        );
+
+        return jsonRpc.onMessage(result);
+      })
+      .catch(function(error) {
+        expect(error).toMatchInlineSnapshot(`[Error: Invalid JSON]`)
+      });
+    });
   });
 
   test("No methods", function () {
@@ -158,4 +191,79 @@ test("Failed notification", function () {
   const result = jsonRpc.onMessage(notification);
 
   return expect(result).rejects.toMatchInlineSnapshot(`[Error]`);
+});
+
+describe("Failed request", function () {
+  test("hide error info", function () {
+    const methods = {
+      foo() {
+        const error = new Error();
+        error.code = 1234;
+
+        throw error;
+      },
+    };
+
+    const jsonRpc = new JsonRpc(methods);
+
+    const notification = jsonRpc.request("foo");
+
+    const promise = jsonRpc.onMessage(notification);
+
+    return promise
+    .then(function (result) {
+      result = JSON.parse(result);
+
+      expect(result).toMatchObject(
+        {
+          error: {
+            code: 1234,
+            data: expect.stringMatching(
+              /^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/
+            ),
+            message: "",
+          },
+          id: 0,
+          jsonrpc: "2.0",
+        }
+      );
+    })
+  });
+
+  test("send full error", function () {
+    const methods = {
+      foo() {
+        const error = new Error();
+        error.code = 1234;
+
+        throw error;
+      },
+    };
+
+    const jsonRpc = new JsonRpc(methods, {sendFullErrors: true});
+
+    const notification = jsonRpc.request("foo");
+
+    const promise = jsonRpc.onMessage(notification);
+
+    return promise
+    .then(function (result) {
+      result = JSON.parse(result);
+
+      expect(result).toMatchObject(
+        {
+          error: {
+            code: 1234,
+            message: "",
+            stack: expect.any(String),
+            uuid: expect.stringMatching(
+              /^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/
+            ),
+          },
+          id: 0,
+          jsonrpc: "2.0",
+        }
+      );
+    })
+  });
 });

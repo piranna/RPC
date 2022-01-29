@@ -103,43 +103,97 @@ test("Invalid method params", function () {
   ]);
 });
 
-test("Failed method", function () {
-  const methods = {
-    foo() {
-      throw new Error();
-    },
-  };
+describe("Failed method", function () {
+  test("throw error", function () {
+    const methods = {
+      foo() {
+        throw new Error();
+      },
+    };
 
-  const rpc = new Rpc(methods);
+    const rpc = new Rpc(methods);
 
-  const request = rpc.request("foo");
+    const request = rpc.request("foo");
 
-  return Promise.all([
-    rpc.onMessage(request).then(function (response) {
-      expect(response).toMatchInlineSnapshot(`
+    return Promise.all([
+      rpc.onMessage(request).then(function (response) {
+        expect(response).toMatchInlineSnapshot(`
+          Object {
+            "ack": 0,
+            "error": Object {
+              "code": -32500,
+              "data": [Error],
+              "message": "",
+            },
+            "result": undefined,
+          }
+        `);
+
+        const result = rpc.onMessage(response);
+
+        return expect(result).resolves.toBeUndefined();
+      }),
+      expect(request).rejects.toMatchInlineSnapshot(`
         Object {
-          "ack": 0,
-          "error": Object {
-            "code": -32500,
-            "data": [Error],
-            "message": "",
-          },
-          "result": undefined,
+          "code": -32500,
+          "data": [Error],
+          "message": "",
         }
-      `);
+      `),
+    ]);
+  });
 
-      const result = rpc.onMessage(response);
+  test("throw string", function () {
+    const methods = {
+      foo() {
+        throw 'Error';
+      },
+    };
 
-      return expect(result).resolves.toBeUndefined();
-    }),
-    expect(request).rejects.toMatchInlineSnapshot(`
-      Object {
-        "code": -32500,
-        "data": [Error],
-        "message": "",
-      }
-    `),
-  ]);
+    const rpc = new Rpc(methods);
+
+    const request = rpc.request("foo");
+
+    return Promise.all([
+      rpc.onMessage(request).then(function (response) {
+        expect(response).toMatchInlineSnapshot(`
+          Object {
+            "ack": 0,
+            "error": Object {
+              "code": -32500,
+              "data": undefined,
+              "message": "Error",
+            },
+            "result": undefined,
+          }
+        `);
+
+        const result = rpc.onMessage(response);
+
+        return expect(result).resolves.toBeUndefined();
+      }),
+      expect(request).rejects.toMatchInlineSnapshot(`
+        Object {
+          "code": -32500,
+          "data": undefined,
+          "message": "Error",
+        }
+      `),
+    ]);
+  });
+});
+
+test("notification without arguments", function () {
+  const rpc = new Rpc();
+
+  function func()
+  {
+    rpc.notification();
+  }
+
+  expect(func).toThrowErrorMatchingInlineSnapshot(
+    `"\`method\` argument is not provided"`
+  );
 });
 
 test("notification with spread params", function () {

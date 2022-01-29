@@ -5,8 +5,8 @@ const LIB_DIR = join('.', 'lib');
 const CJS_DIR = join('.');
 
 const external = [
-  '.', '@journeyapps/domparser', '@xmldom/xmldom', 'crypto', 'error-to-json',
-  'object-path', 'xmlrpc-serialization/decode', 'xmlrpc-serialization/stringify'
+  '.', '@xmldom/xmldom', 'crypto', 'error-to-json', 'object-path',
+  'xmlrpc-serialization'
 ]
 
 const files = fs.readdirSync(LIB_DIR);

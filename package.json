@@ -3,7 +3,6 @@
   "version": "0.2.4",
   "description": "Transport agnostic and protocol polyglot RPC",
   "type": "module",
-  "main": "index.cjs",
   "module": "lib",
   "exports": {
     ".": {
@@ -26,7 +25,7 @@
   "scripts": {
     "build": "rollup -c",
     "prepare": "npm run build",
-    "test": "node --experimental-vm-modules node_modules/.bin/jest"
+    "test": "NODE_OPTIONS='--experimental-vm-modules' jest"
   },
   "repository": {
     "type": "git",
@@ -54,17 +53,31 @@
     "collectCoverageFrom": [
       "lib/**/*.js"
     ],
-    "resolver": "jest-node-exports-resolver"
+    "projects": [
+      {
+        "displayName": "jsdom",
+        "resolver": "jest-node-exports-resolver",
+        "testEnvironment": "jsdom"
+      },
+      {
+        "displayName": "node",
+        "resolver": "jest-node-exports-resolver",
+        "testEnvironment": "node"
+      }
+    ]
   },
   "devDependencies": {
-    "jest-cli": "^27.3.1",
-    "jest-node-exports-resolver": "github:Mafalda-SFU/jest-node-exports-resolver",
-    "rollup": "^2.59.0"
+    "jest-cli": "^27.4.7",
+    "jest-node-exports-resolver": "^1.1.5",
+    "rollup": "^2.66.1"
   },
   "dependencies": {
-    "@xmldom/xmldom": "^0.7.5",
+    "@xmldom/xmldom": "^0.8.0",
     "error-to-json": "^2.0.0",
     "object-path": "^0.11.8",
-    "xmlrpc-serialization": "piranna/XmlRPC-serialization"
+    "xmlrpc-serialization": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
   }
 }
