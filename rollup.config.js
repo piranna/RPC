@@ -5,7 +5,7 @@ const LIB_DIR = join('.', 'lib');
 const CJS_DIR = join('.');
 
 const external = [
-  '.', '@xmldom/xmldom', 'crypto', 'error-to-json', 'object-path',
+  '@xmldom/xmldom', 'crypto', 'error-to-json', 'object-path',
   'xmlrpc-serialization'
 ]
 
