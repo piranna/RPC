@@ -56,7 +56,7 @@ describe("onMessage", function () {
     })
   });
 
-  describe("Invalid JSON", function () {
+  describe("Parse error", function () {
     test("hide full errors", function () {
       const jsonRpc = new JsonRpc();
 
@@ -69,7 +69,7 @@ describe("onMessage", function () {
               data: expect.stringMatching(
                 /^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/
               ),
-              message: "Invalid JSON"
+              message: "Parse error"
             },
             id: null,
             jsonrpc: "2.0"
@@ -95,7 +95,7 @@ describe("onMessage", function () {
                   /^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/
                 )
               },
-              message: "Invalid JSON"
+              message: "Parse error"
             },
             id: null,
             jsonrpc: "2.0"
@@ -105,7 +105,7 @@ describe("onMessage", function () {
         return jsonRpc.onMessage(result);
       })
       .catch(function(error) {
-        expect(error).toMatchInlineSnapshot(`[Error: Invalid JSON]`)
+        expect(error).toMatchInlineSnapshot(`[Error: Parse error]`)
       });
     });
   });
@@ -267,3 +267,66 @@ describe("Failed request", function () {
     })
   });
 });
+
+describe('batch', function()
+{
+  test('basic', function()
+  {
+    const methods = {
+      foo() {
+        return "bar";
+      },
+      foo2() {
+        return "bar2";
+      },
+    };
+
+    const jsonRpc = new JsonRpc(methods);
+
+    const batch = jsonRpc.createBatch()
+
+    // Batch request returns a promise
+    const promiseRequest = batch.request("foo", function (error, result) {
+      expect(error).toBeFalsy();
+      expect(result).toBe("bar");
+
+      return "bar 2";
+    });
+    expect(promiseRequest).toBeInstanceOf(Promise);
+    expect(promiseRequest.id).toBeUndefined();
+    expect(promiseRequest.method).toBeUndefined();
+    expect(promiseRequest.params).toBeUndefined();
+    expect(promiseRequest.then).toBeInstanceOf(Function);
+
+    // Batch notification returns undefined
+    const notification = batch.notification("foo2");
+    expect(notification).toBeUndefined();
+
+    // Requests are initialized when the batch is executed
+    const promiseRun = batch.run()
+    expect(promiseRun.valueOf()).toEqual(
+      '[{"id":0,"jsonrpc":"2.0","method":"foo"},{"jsonrpc":"2.0","method":"foo2"}]'
+    );
+    expect(promiseRun.then).toBeInstanceOf(Function);
+
+    // Response and Result
+    const promiseResponse = jsonRpc.onMessage(promiseRun)
+    const promiseResult = promiseResponse.then(jsonRpc.onMessage.bind(jsonRpc))
+
+    // Check promises
+    return Promise.all([
+      // Request and Run
+      expect(promiseRequest).resolves.toBe("bar 2"),
+      expect(promiseRun).resolves.toBeUndefined(),
+
+      // Response and Result
+      promiseResponse.then(function(response)
+      {
+        expect(response.valueOf()).toEqual(
+          '[{"id":0,"jsonrpc":"2.0","result":"bar"}]'
+        )
+      }),
+      expect(promiseResult).resolves.toBeUndefined()
+    ])
+  })
+})

@@ -7,7 +7,7 @@ describe("onMessage", function () {
     const result = rpc.onMessage();
 
     return expect(result).rejects.toMatchInlineSnapshot(
-      `[TypeError: Cannot destructure property 'ack' of 'undefined' as it is undefined.]`
+      "[SyntaxError: `message` argument can't be `undefined`]"
     );
   });
 
@@ -17,7 +17,7 @@ describe("onMessage", function () {
     const result = rpc.onMessage({});
 
     return expect(result).rejects.toMatchInlineSnapshot(
-      `[TypeError: Received invalid message]`
+      `[TypeError: Invalid response]`
     );
   });
 
@@ -55,6 +55,7 @@ describe("Mixed message", function () {
     return expect(result).resolves.toMatchInlineSnapshot(`
       Object {
         "ack": undefined,
+        "batch": undefined,
         "error": [Error: Received response for unknown request '0'],
         "result": undefined,
       }
@@ -80,6 +81,7 @@ test("Invalid method params", function () {
       expect(response).toMatchInlineSnapshot(`
         Object {
           "ack": 0,
+          "batch": Array [],
           "error": Object {
             "code": -32602,
             "data": [Error],
@@ -120,6 +122,7 @@ describe("Failed method", function () {
         expect(response).toMatchInlineSnapshot(`
           Object {
             "ack": 0,
+            "batch": Array [],
             "error": Object {
               "code": -32500,
               "data": [Error],
@@ -155,10 +158,12 @@ describe("Failed method", function () {
     const request = rpc.request("foo");
 
     return Promise.all([
+      // Process request
       rpc.onMessage(request).then(function (response) {
         expect(response).toMatchInlineSnapshot(`
           Object {
             "ack": 0,
+            "batch": Array [],
             "error": Object {
               "code": -32500,
               "data": undefined,
@@ -168,10 +173,14 @@ describe("Failed method", function () {
           }
         `);
 
+        // Process response
         const result = rpc.onMessage(response);
 
+        // No need to reply response
         return expect(result).resolves.toBeUndefined();
       }),
+
+      // Request is failed
       expect(request).rejects.toMatchInlineSnapshot(`
         Object {
           "code": -32500,
@@ -194,29 +203,4 @@ test("notification without arguments", function () {
   expect(func).toThrowErrorMatchingInlineSnapshot(
     `"\`method\` argument is not provided"`
   );
-});
-
-test("notification with spread params", function () {
-  const rpc = new Rpc();
-
-  const notification = rpc.notification("foo", "bar");
-
-  expect(notification).toMatchInlineSnapshot(`
-    Object {
-      "method": "foo",
-      "params": Array [
-        "bar",
-      ],
-    }
-  `);
-});
-
-test("notification with array params", function () {
-  const rpc = new Rpc({
-    foo() {},
-  });
-
-  const notification = rpc.notification("foo", ["bar"]);
-
-  return rpc.onMessage(notification);
 });
