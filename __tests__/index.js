@@ -117,25 +117,23 @@ describe("Failed method", function () {
 
     const request = rpc.request("foo");
 
+    const onMessageRequest = rpc.onMessage(request)
+    const onMessageResponse = onMessageRequest.then(rpc.onMessage.bind(rpc))
+
     return Promise.all([
-      rpc.onMessage(request).then(function (response) {
-        expect(response).toMatchInlineSnapshot(`
-          Object {
-            "ack": 0,
-            "batch": Array [],
-            "error": Object {
-              "code": -32500,
-              "data": [Error],
-              "message": "",
-            },
-            "result": undefined,
-          }
-        `);
-
-        const result = rpc.onMessage(response);
-
-        return expect(result).resolves.toBeUndefined();
-      }),
+      expect(onMessageRequest).resolves.toMatchInlineSnapshot(`
+        Object {
+          "ack": 0,
+          "batch": Array [],
+          "error": Object {
+            "code": -32500,
+            "data": [Error],
+            "message": "",
+          },
+          "result": undefined,
+        }
+      `),
+      expect(onMessageResponse).resolves.toBeUndefined(),
       expect(request).rejects.toMatchInlineSnapshot(`
         Object {
           "code": -32500,
