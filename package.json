@@ -67,9 +67,9 @@
     ]
   },
   "devDependencies": {
-    "jest-cli": "^27.5.0",
+    "jest-cli": "^27.5.1",
     "jest-node-exports-resolver": "^1.1.5",
-    "rollup": "^2.67.1"
+    "rollup": "^2.67.2"
   },
   "dependencies": {
     "@xmldom/xmldom": "^0.8.0",
