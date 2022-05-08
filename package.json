@@ -3,27 +3,26 @@
   "version": "0.2.4",
   "description": "Transport agnostic and protocol polyglot RPC",
   "type": "module",
-  "module": "lib",
   "exports": {
     ".": {
       "import": "./lib/index.js",
-      "require": "./index.cjs"
+      "require": "./dist/index.cjs"
     },
     "./JsonRpc": {
       "import": "./lib/JsonRpc.js",
-      "require": "./JsonRpc.cjs"
+      "require": "./dist/JsonRpc.cjs"
     },
     "./XmlRpc": {
       "node": {
         "import": "./lib/XmlRpc_node.js",
-        "require": "./XmlRpc_node.cjs"
+        "require": "./dist/XmlRpc_node.cjs"
       },
       "import": "./lib/XmlRpc.js",
-      "require": "./XmlRpc.cjs"
+      "require": "./dist/XmlRpc.cjs"
     }
   },
   "scripts": {
-    "build": "rollup -c",
+    "build": "babel lib --out-dir dist --out-file-extension .cjs",
     "prepare": "npm run build",
     "test": "NODE_OPTIONS='--experimental-vm-modules' jest"
   },
@@ -56,23 +55,25 @@
     "projects": [
       {
         "displayName": "jsdom",
-        "resolver": "jest-node-exports-resolver",
-        "testEnvironment": "jsdom"
+        "testEnvironment": "jsdom",
+        "transform": {}
       },
       {
         "displayName": "node",
-        "resolver": "jest-node-exports-resolver",
-        "testEnvironment": "node"
+        "testEnvironment": "node",
+        "transform": {}
       }
     ]
   },
   "devDependencies": {
-    "jest-cli": "^27.5.1",
-    "jest-node-exports-resolver": "^1.1.5",
-    "rollup": "^2.67.2"
+    "@babel/cli": "^7.17.10",
+    "@babel/plugin-transform-modules-commonjs": "^7.17.9",
+    "babel-plugin-add-import-extension": "^1.6.0",
+    "jest-cli": "^28.1.0",
+    "jest-environment-jsdom": "^28.1.0"
   },
   "dependencies": {
-    "@xmldom/xmldom": "^0.8.0",
+    "@xmldom/xmldom": "^0.8.2",
     "error-to-json": "piranna/error-to-json",
     "object-path": "^0.11.8",
     "xmlrpc-serialization": "^3.0.0"
