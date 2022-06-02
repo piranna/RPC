@@ -67,7 +67,7 @@
   },
   "devDependencies": {
     "@babel/cli": "^7.17.10",
-    "@babel/plugin-transform-modules-commonjs": "^7.17.9",
+    "@babel/plugin-transform-modules-commonjs": "^7.18.2",
     "babel-plugin-add-import-extension": "^1.6.0",
     "jest-cli": "^28.1.0",
     "jest-environment-jsdom": "^28.1.0"
