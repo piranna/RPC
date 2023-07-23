@@ -132,7 +132,7 @@ describe("onMessage", function () {
       Object {
         "code": -32601,
         "data": "foo",
-        "message": "Unknown method 'foo'",
+        "message": "Unknown notification 'foo'",
       }
     `);
   });
