@@ -88,9 +88,9 @@ describe("onMessage", function () {
             error: {
               code: -32700,
               data: {
-                message: "Unexpected token o in JSON at position 1",
+                message: "Unexpected token 'o', \"foo\" is not valid JSON",
                 name: "SyntaxError",
-                stack: expect.stringContaining("SyntaxError: Unexpected token o in JSON at position 1"),
+                stack: expect.stringContaining("SyntaxError: Unexpected token 'o', \"foo\" is not valid JSON"),
                 uuid: expect.stringMatching(
                   /^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/
                 )
@@ -116,7 +116,7 @@ describe("onMessage", function () {
     const result = jsonRpc.onMessage('{"jsonrpc":"2.0","method":"foo"}');
 
     return expect(result).rejects.toMatchInlineSnapshot(`
-      Object {
+      {
         "code": -32603,
         "message": "Client doesn't accept requests",
       }
@@ -129,7 +129,7 @@ describe("onMessage", function () {
     const result = jsonRpc.onMessage('{"jsonrpc":"2.0","method":"foo"}');
 
     return expect(result).rejects.toMatchInlineSnapshot(`
-      Object {
+      {
         "code": -32601,
         "data": "foo",
         "message": "Unknown notification 'foo'",
