@@ -53,7 +53,7 @@ describe("Mixed message", function () {
     const result = rpc.onMessage({ ack: 0, method: "foo" });
 
     return expect(result).resolves.toMatchInlineSnapshot(`
-      Object {
+      {
         "ack": undefined,
         "batch": undefined,
         "error": [Error: Received response for unknown request '0'],
@@ -79,10 +79,10 @@ test("Invalid method params", function () {
   return Promise.all([
     rpc.onMessage(request).then(function (response) {
       expect(response).toMatchInlineSnapshot(`
-        Object {
+        {
           "ack": 0,
-          "batch": Array [],
-          "error": Object {
+          "batch": [],
+          "error": {
             "code": -32602,
             "data": [Error],
             "message": "",
@@ -96,7 +96,7 @@ test("Invalid method params", function () {
       return expect(result).resolves.toBeUndefined();
     }),
     expect(request).rejects.toMatchInlineSnapshot(`
-      Object {
+      {
         "code": -32602,
         "data": [Error],
         "message": "",
@@ -122,10 +122,10 @@ describe("Failed method", function () {
 
     return Promise.all([
       expect(onMessageRequest).resolves.toMatchInlineSnapshot(`
-        Object {
+        {
           "ack": 0,
-          "batch": Array [],
-          "error": Object {
+          "batch": [],
+          "error": {
             "code": -32500,
             "data": [Error],
             "message": "",
@@ -135,7 +135,7 @@ describe("Failed method", function () {
       `),
       expect(onMessageResponse).resolves.toBeUndefined(),
       expect(request).rejects.toMatchInlineSnapshot(`
-        Object {
+        {
           "code": -32500,
           "data": [Error],
           "message": "",
@@ -159,10 +159,10 @@ describe("Failed method", function () {
       // Process request
       rpc.onMessage(request).then(function (response) {
         expect(response).toMatchInlineSnapshot(`
-          Object {
+          {
             "ack": 0,
-            "batch": Array [],
-            "error": Object {
+            "batch": [],
+            "error": {
               "code": -32500,
               "data": undefined,
               "message": "Error",
@@ -180,7 +180,7 @@ describe("Failed method", function () {
 
       // Request is failed
       expect(request).rejects.toMatchInlineSnapshot(`
-        Object {
+        {
           "code": -32500,
           "data": undefined,
           "message": "Error",
