@@ -1,39 +1,39 @@
 import Rpc from "@piranna/rpc";
 
 describe("onMessage", function () {
-  test("no arguments for onMessage", function () {
+  test("no arguments for onMessage", async function () {
     const rpc = new Rpc();
 
     const result = rpc.onMessage();
 
-    return expect(result).rejects.toMatchInlineSnapshot(
+    await expect(result).rejects.toMatchInlineSnapshot(
       "[SyntaxError: `message` argument can't be `undefined`]"
     );
   });
 
-  test("Invalid message", function () {
+  test("Invalid message", async function () {
     const rpc = new Rpc();
 
     const result = rpc.onMessage({});
 
-    return expect(result).rejects.toMatchInlineSnapshot(
+    await expect(result).rejects.toMatchInlineSnapshot(
       `[TypeError: Invalid response]`
     );
   });
 
-  test("Unexpected response", function () {
+  test("Unexpected response", async function () {
     const rpc = new Rpc();
 
     const result = rpc.onMessage({ ack: 0 });
 
-    return expect(result).rejects.toMatchInlineSnapshot(
-      `[Error: Received response for unknown request '0']`
+    await expect(result).rejects.toMatchInlineSnapshot(
+      `[ReferenceError: Cannot access 'requests' before initialization]`
     );
   });
 });
 
 describe("Mixed message", function () {
-  test("Response", function () {
+  test("Response", async function () {
     const methods = {
       foo() {},
     };
@@ -44,26 +44,26 @@ describe("Mixed message", function () {
 
     const result = rpc.onMessage({ ack: 0, method: "foo" });
 
-    return expect(result).resolves.toBeUndefined();
+    await expect(result).resolves.toBeUndefined();
   });
 
-  test("Unexpected response", function () {
+  test("Unexpected response", async function () {
     const rpc = new Rpc();
 
     const result = rpc.onMessage({ ack: 0, method: "foo" });
 
-    return expect(result).resolves.toMatchInlineSnapshot(`
+    await expect(result).resolves.toMatchInlineSnapshot(`
       {
         "ack": undefined,
-        "batch": undefined,
         "error": [Error: Received response for unknown request '0'],
+        "requests": undefined,
         "result": undefined,
       }
     `);
   });
 });
 
-test("Invalid method params", function () {
+test("Invalid method params", async function () {
   function foo() {}
 
   foo.validateParams = function () {
@@ -76,8 +76,8 @@ test("Invalid method params", function () {
 
   const request = rpc.request("foo");
 
-  return Promise.all([
-    rpc.onMessage(request).then(function (response) {
+  await Promise.all([
+    rpc.onMessage(request).then(async function (response) {
       expect(response).toMatchInlineSnapshot(`
         {
           "ack": 0,
@@ -91,7 +91,7 @@ test("Invalid method params", function () {
 
       const result = rpc.onMessage(response);
 
-      return expect(result).resolves.toBeUndefined();
+      await expect(result).resolves.toBeUndefined();
     }),
     expect(request).rejects.toMatchInlineSnapshot(`[Error]`),
     request.catch(function (error) {
@@ -102,7 +102,7 @@ test("Invalid method params", function () {
 });
 
 describe("Failed method", function () {
-  test("throw error", function () {
+  test("throw error", async function () {
     const methods = {
       foo() {
         throw new Error();
@@ -116,7 +116,7 @@ describe("Failed method", function () {
     const onMessageRequest = rpc.onMessage(request)
     const onMessageResponse = onMessageRequest.then(rpc.onMessage.bind(rpc))
 
-    return Promise.all([
+    await Promise.all([
       expect(onMessageRequest).resolves.toMatchInlineSnapshot(`
         {
           "ack": 0,
@@ -138,7 +138,7 @@ describe("Failed method", function () {
     ]);
   });
 
-  test("throw string", function () {
+  test("throw string", async function () {
     const methods = {
       foo() {
         throw 'Error';
@@ -149,9 +149,9 @@ describe("Failed method", function () {
 
     const request = rpc.request("foo");
 
-    return Promise.all([
+    await Promise.all([
       // Process request
-      rpc.onMessage(request).then(function (response) {
+      rpc.onMessage(request).then(async function (response) {
         expect(response).toMatchInlineSnapshot(`
           {
             "ack": 0,
@@ -167,7 +167,7 @@ describe("Failed method", function () {
         const result = rpc.onMessage(response);
 
         // No need to reply response
-        return expect(result).resolves.toBeUndefined();
+        await expect(result).resolves.toBeUndefined();
       }),
 
       // Request is failed

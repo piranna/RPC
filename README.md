@@ -1,6 +1,6 @@
 # RPC
 
-Transport and protocol agnostic polyglot RPC
+Transport agnostic and protocol polyglot RPC
 
 This module provides a bi-directional RPC scheme that's independent of the
 actual transport or protocol being used, allowing you to use multiple message

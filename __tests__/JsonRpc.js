@@ -1,10 +1,10 @@
 import JsonRpc from "@piranna/rpc/JsonRpc";
 
-test("basic", function () {
 
 const UUID_REGEX = /^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/
 
 
+test("basic", async function () {
   const methods = {
     foo() {
       return "bar";
@@ -23,7 +23,7 @@ const UUID_REGEX = /^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}
   expect(request.valueOf()).toEqual('{"id":0,"jsonrpc":"2.0","method":"foo"}');
   expect(request.then).toBeInstanceOf(Function);
 
-  return Promise.all([
+  await Promise.all([
     jsonRpc
     .onMessage(request)
     .then(function (response) {
@@ -170,12 +170,12 @@ describe("onMessage", function () {
     ]);
   });
 
-  test("Response of failed notification", function () {
+  test("Response of failed notification", async function () {
     const jsonRpc = new JsonRpc();
 
     const result = jsonRpc.onMessage('{"jsonrpc":"2.0","id":null}');
 
-    return expect(result).rejects.toMatchInlineSnapshot(`undefined`);
+    await expect(result).rejects.toMatchInlineSnapshot(`undefined`);
   });
 
   test("Request with `null` id", async function () {
@@ -219,7 +219,7 @@ test("notification", function () {
   );
 });
 
-test("Failed notification", function () {
+test("Failed notification", async function () {
   const methods = {
     foo() {
       const error = new Error();
@@ -235,7 +235,7 @@ test("Failed notification", function () {
 
   const result = jsonRpc.onMessage(notification);
 
-  return expect(result).rejects.toMatchInlineSnapshot(`[Error]`);
+  await expect(result).rejects.toMatchInlineSnapshot(`[Error]`);
 });
 
 describe("Failed request", function () {
@@ -303,7 +303,7 @@ describe("Failed request", function () {
 
 describe('batch', function()
 {
-  test('basic', function()
+  test('basic', async function()
   {
     const methods = {
       foo() {
@@ -347,7 +347,7 @@ describe('batch', function()
     const promiseResult = promiseResponse.then(jsonRpc.onMessage.bind(jsonRpc))
 
     // Check promises
-    return Promise.all([
+    await Promise.all([
       // Request and Run
       expect(promiseRequest).resolves.toBe("bar 2"),
       expect(promiseRun).resolves.toBeUndefined(),
