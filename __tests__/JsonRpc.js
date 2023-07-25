@@ -92,19 +92,22 @@ describe("onMessage", function () {
 
       const result = await jsonRpc.onMessage("foo")
 
-      expect(JSON.parse(result)).toMatchObject(
+      expect(JSON.parse(result)).toMatchInlineSnapshot(
         {
           error: {
-            code: -32700,
-            data: expect.stringMatching(
-              /^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/
-            ),
-            message: "Parse error"
+            data: expect.stringMatching(UUID_REGEX)
+          }
+        }, `
+        {
+          "error": {
+            "code": -32700,
+            "data": StringMatching /\\^\\[a-fA-F0-9\\]\\{8\\}-\\[a-fA-F0-9\\]\\{4\\}-\\[a-fA-F0-9\\]\\{4\\}-\\[a-fA-F0-9\\]\\{4\\}-\\[a-fA-F0-9\\]\\{12\\}\\$/,
+            "message": "Parse error",
           },
-          id: null,
-          jsonrpc: "2.0"
+          "id": null,
+          "jsonrpc": "2.0",
         }
-      );
+      `);
     });
 
     test("send full errors", async function () {
@@ -112,24 +115,25 @@ describe("onMessage", function () {
 
       const result = await jsonRpc.onMessage("foo")
 
-      expect(JSON.parse(result)).toMatchObject(
+      expect(JSON.parse(result)).toMatchInlineSnapshot(
         {
           error: {
-            code: -32700,
-            data: {
-              message: "Unexpected token 'o', \"foo\" is not valid JSON",
-              name: "SyntaxError",
-              stack: expect.stringContaining("SyntaxError: Unexpected token 'o', \"foo\" is not valid JSON"),
-              uuid: expect.stringMatching(
-                /^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/
-              )
-            },
-            message: "Parse error"
+            stack: expect.any(String),
+            uuid: expect.stringMatching(UUID_REGEX)
+          }
+        }, `
+        {
+          "error": {
+            "code": -32700,
+            "message": "Parse error",
+            "name": "Error",
+            "stack": Any<String>,
+            "uuid": StringMatching /\\^\\[a-fA-F0-9\\]\\{8\\}-\\[a-fA-F0-9\\]\\{4\\}-\\[a-fA-F0-9\\]\\{4\\}-\\[a-fA-F0-9\\]\\{4\\}-\\[a-fA-F0-9\\]\\{12\\}\\$/,
           },
-          id: null,
-          jsonrpc: "2.0"
+          "id": null,
+          "jsonrpc": "2.0",
         }
-      );
+      `);
 
       const promise = jsonRpc.onMessage(result)
 
@@ -163,8 +167,8 @@ describe("onMessage", function () {
         `[Error: Unknown notification 'foo']`
       ),
       result.catch(function (error) {
+        expect(error.cause).toBe("foo");
         expect(error.code).toBe(-32601);
-        expect(error.data).toBe("foo");
         expect(error.message).toBe("Unknown notification 'foo'");
       })
     ]);
@@ -255,19 +259,22 @@ describe("Failed request", function () {
 
     const result = await jsonRpc.onMessage(notification);
 
-    expect(JSON.parse(result)).toMatchObject(
+    expect(JSON.parse(result)).toMatchInlineSnapshot(
       {
         error: {
-          code: 1234,
-          data: expect.stringMatching(
-            /^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/
-          ),
-          message: "",
+          data: expect.stringMatching(UUID_REGEX)
+        }
+      }, `
+      {
+        "error": {
+          "code": 1234,
+          "data": StringMatching /\\^\\[a-fA-F0-9\\]\\{8\\}-\\[a-fA-F0-9\\]\\{4\\}-\\[a-fA-F0-9\\]\\{4\\}-\\[a-fA-F0-9\\]\\{4\\}-\\[a-fA-F0-9\\]\\{12\\}\\$/,
+          "message": "",
         },
-        id: 0,
-        jsonrpc: "2.0",
+        "id": 0,
+        "jsonrpc": "2.0",
       }
-    );
+    `);
   });
 
   test("send full error", async function () {
@@ -286,18 +293,25 @@ describe("Failed request", function () {
 
     const result = await jsonRpc.onMessage(notification);
 
-    expect(JSON.parse(result)).toMatchObject(
+    expect(JSON.parse(result)).toMatchInlineSnapshot(
       {
         error: {
-          code: 1234,
-          message: "",
           stack: expect.any(String),
-          uuid: expect.stringMatching(UUID_REGEX),
+          uuid: expect.stringMatching(UUID_REGEX)
+        }
+      }, `
+      {
+        "error": {
+          "code": 1234,
+          "message": "",
+          "name": "Error",
+          "stack": Any<String>,
+          "uuid": StringMatching /\\^\\[a-fA-F0-9\\]\\{8\\}-\\[a-fA-F0-9\\]\\{4\\}-\\[a-fA-F0-9\\]\\{4\\}-\\[a-fA-F0-9\\]\\{4\\}-\\[a-fA-F0-9\\]\\{12\\}\\$/,
         },
-        id: 0,
-        jsonrpc: "2.0",
+        "id": 0,
+        "jsonrpc": "2.0",
       }
-    );
+    `);
   })
 });
 
