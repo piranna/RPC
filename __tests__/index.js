@@ -81,27 +81,23 @@ test("Invalid method params", function () {
       expect(response).toMatchInlineSnapshot(`
         {
           "ack": 0,
-          "batch": [],
-          "error": {
-            "code": -32602,
-            "data": [Error],
-            "message": "",
-          },
+          "error": [Error],
+          "requests": [],
           "result": undefined,
         }
       `);
+      expect(response.error.code).toBe(-32602);
+      expect(response.error.message).toBe("");
 
       const result = rpc.onMessage(response);
 
       return expect(result).resolves.toBeUndefined();
     }),
-    expect(request).rejects.toMatchInlineSnapshot(`
-      {
-        "code": -32602,
-        "data": [Error],
-        "message": "",
-      }
-    `),
+    expect(request).rejects.toMatchInlineSnapshot(`[Error]`),
+    request.catch(function (error) {
+      expect(error.code).toBe(-32602),
+      expect(error.message).toBe("")
+    }),
   ]);
 });
 
@@ -125,22 +121,20 @@ describe("Failed method", function () {
         {
           "ack": 0,
           "batch": [],
-          "error": {
-            "code": -32500,
-            "data": [Error],
-            "message": "",
-          },
+          "error": [Error],
           "result": undefined,
         }
       `),
-      expect(onMessageResponse).resolves.toBeUndefined(),
-      expect(request).rejects.toMatchInlineSnapshot(`
-        {
-          "code": -32500,
-          "data": [Error],
-          "message": "",
-        }
-      `),
+      onMessageRequest.then(function (result) {
+        expect(result.error.code).toBe(-32500),
+        expect(result.error.message).toBe("")
+      }),
+        expect(onMessageResponse).resolves.toBeUndefined(),
+      expect(request).rejects.toMatchInlineSnapshot(`[Error]`),
+      request.catch(function (error) {
+        expect(error.code).toBe(-32500),
+        expect(error.message).toBe("")
+      }),
     ]);
   });
 
@@ -162,14 +156,12 @@ describe("Failed method", function () {
           {
             "ack": 0,
             "batch": [],
-            "error": {
-              "code": -32500,
-              "data": undefined,
-              "message": "Error",
-            },
+            "error": [Error: Error],
             "result": undefined,
           }
         `);
+        expect(response.error.code).toBe(-32500),
+        expect(response.error.message).toBe("Error")
 
         // Process response
         const result = rpc.onMessage(response);
@@ -179,13 +171,11 @@ describe("Failed method", function () {
       }),
 
       // Request is failed
-      expect(request).rejects.toMatchInlineSnapshot(`
-        {
-          "code": -32500,
-          "data": undefined,
-          "message": "Error",
-        }
-      `),
+      expect(request).rejects.toMatchInlineSnapshot(`[Error: Error]`),
+      request.catch(function (error) {
+        expect(error.code).toBe(-32500),
+        expect(error.message).toBe("Error")
+      }),
     ]);
   });
 });

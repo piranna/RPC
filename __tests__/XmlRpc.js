@@ -46,26 +46,26 @@ test("basic", function () {
   ]);
 });
 
-test("Invalid XmlRPC", function () {
+test("Invalid XmlRPC", async function () {
   const xmlRpc = new XmlRpc();
 
-  const result = xmlRpc.onMessage('<?xml version="1.0"?><foo/>', 0);
+  const result = await xmlRpc.onMessage('<?xml version="1.0"?><foo/>', 0);
 
-  return result.then(function (result) {
-    expect(result).toMatchObject({
-      ack: 0,
-      error: {
-        code: -32600,
-        data: new Error("Unknown node 'foo'"),
-        message: 'server error. invalid xml-rpc. not conforming to spec.'
-      },
-      id: undefined,
-      then: undefined
-    });
-    expect(result.valueOf()).toBe(
-      '<?xml version="1.0"?><methodResponse><fault><value><struct><member><name>faultCode</name><value><i4>-32600</i4></value></member><member><name>faultString</name><value><string>server error. invalid xml-rpc. not conforming to spec.</string></value></member></struct></value></fault></methodResponse>'
-    );
+  expect(result).toMatchObject({
+    ack: 0,
+    error: {
+      code: -32600
+    },
+    id: undefined,
+    then: undefined,
   });
+  expect(result.error.cause).toMatchInlineSnapshot("[Error: Unknown node 'foo']");
+  expect(result.error.message).toBe(
+    "server error. invalid xml-rpc. not conforming to spec."
+  );
+  expect(result.valueOf()).toBe(
+    '<?xml version="1.0"?><methodResponse><fault><value><struct><member><name>faultCode</name><value><i4>-32600</i4></value></member><member><name>faultString</name><value><string>server error. invalid xml-rpc. not conforming to spec.</string></value></member></struct></value></fault></methodResponse>'
+  );
 });
 
 test("Invalid XML", function () {
