@@ -118,6 +118,9 @@ describe("onMessage", function () {
       expect(JSON.parse(result)).toMatchInlineSnapshot(
         {
           error: {
+            data: {
+              stack: expect.any(String),
+            },
             stack: expect.any(String),
             uuid: expect.stringMatching(UUID_REGEX)
           }
@@ -125,6 +128,11 @@ describe("onMessage", function () {
         {
           "error": {
             "code": -32700,
+            "data": {
+              "message": "Unexpected token 'o', "foo" is not valid JSON",
+              "name": "SyntaxError",
+              "stack": Any<String>,
+            },
             "message": "Parse error",
             "name": "Error",
             "stack": Any<String>,
@@ -137,7 +145,27 @@ describe("onMessage", function () {
 
       const promise = jsonRpc.onMessage(result)
 
-      await expect(promise).rejects.toMatchInlineSnapshot(`[Error: Parse error]`);
+      await expect(promise).rejects.toMatchInlineSnapshot(
+        {
+          cause: {
+            stack: expect.any(String),
+          },
+          stack: expect.any(String),
+          uuid: expect.stringMatching(UUID_REGEX)
+      }, `
+        {
+          "cause": {
+            "message": "Unexpected token 'o', "foo" is not valid JSON",
+            "name": "SyntaxError",
+            "stack": Any<String>,
+          },
+          "code": -32700,
+          "message": "Parse error",
+          "name": "Error",
+          "stack": Any<String>,
+          "uuid": StringMatching /\\^\\[a-fA-F0-9\\]\\{8\\}-\\[a-fA-F0-9\\]\\{4\\}-\\[a-fA-F0-9\\]\\{4\\}-\\[a-fA-F0-9\\]\\{4\\}-\\[a-fA-F0-9\\]\\{12\\}\\$/,
+        }
+      `);
     });
   });
 
