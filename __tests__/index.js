@@ -77,6 +77,7 @@ test("Invalid method params", async function () {
   const request = rpc.request("foo");
 
   await Promise.all([
+    // Process request
     rpc.onMessage(request).then(async function (response) {
       expect(response).toMatchInlineSnapshot(`
         {
@@ -93,6 +94,8 @@ test("Invalid method params", async function () {
 
       await expect(result).resolves.toBeUndefined();
     }),
+
+    // Request is failed
     expect(request).rejects.toMatchInlineSnapshot(`[Error]`),
     request.catch(function (error) {
       expect(error.code).toBe(-32602),
@@ -117,6 +120,7 @@ describe("Failed method", function () {
     const onMessageResponse = onMessageRequest.then(rpc.onMessage.bind(rpc))
 
     await Promise.all([
+      // Process request
       expect(onMessageRequest).resolves.toMatchInlineSnapshot(`
         {
           "ack": 0,
@@ -129,7 +133,9 @@ describe("Failed method", function () {
         expect(result.error.code).toBe(-32500),
         expect(result.error.message).toBe("")
       }),
-        expect(onMessageResponse).resolves.toBeUndefined(),
+      expect(onMessageResponse).resolves.toBeUndefined(),
+
+      // Request is failed
       expect(request).rejects.toMatchInlineSnapshot(`[Error]`),
       request.catch(function (error) {
         expect(error.code).toBe(-32500),
