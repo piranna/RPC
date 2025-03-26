@@ -1,5 +1,7 @@
 import JsonRpc from "@piranna/rpc/JsonRpc";
 
+import { JSONParse } from 'json-with-bigint';
+
 
 const UUID_REGEX = /^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/
 
@@ -44,7 +46,7 @@ describe("onMessage", function () {
 
       const result = await jsonRpc.onMessage('{"id": 0}')
 
-      expect(JSON.parse(result)).toMatchInlineSnapshot(
+      expect(JSONParse(result)).toMatchInlineSnapshot(
         {
           error: {
             data: expect.stringMatching(UUID_REGEX)
@@ -67,7 +69,7 @@ describe("onMessage", function () {
 
       const result = await jsonRpc.onMessage('{}')
 
-      expect(JSON.parse(result)).toMatchInlineSnapshot(
+      expect(JSONParse(result)).toMatchInlineSnapshot(
         {
           error: {
             data: expect.stringMatching(UUID_REGEX)
@@ -92,7 +94,7 @@ describe("onMessage", function () {
 
       const result = await jsonRpc.onMessage("foo")
 
-      expect(JSON.parse(result)).toMatchInlineSnapshot(
+      expect(JSONParse(result)).toMatchInlineSnapshot(
         {
           error: {
             data: expect.stringMatching(UUID_REGEX)
@@ -115,7 +117,7 @@ describe("onMessage", function () {
 
       const result = await jsonRpc.onMessage("foo")
 
-      expect(JSON.parse(result)).toMatchInlineSnapshot(
+      expect(JSONParse(result)).toMatchInlineSnapshot(
         {
           error: {
             data: {
@@ -226,7 +228,7 @@ describe("onMessage", function () {
       '{"jsonrpc":"2.0","id":null,"method":"foo"}'
     )
 
-    expect(JSON.parse(result)).toMatchInlineSnapshot(
+    expect(JSONParse(result)).toMatchInlineSnapshot(
       {
         error: {
           data: expect.stringMatching(UUID_REGEX)
@@ -291,7 +293,7 @@ describe("Failed request", function () {
 
     const result = await jsonRpc.onMessage(notification);
 
-    expect(JSON.parse(result)).toMatchInlineSnapshot(
+    expect(JSONParse(result)).toMatchInlineSnapshot(
       {
         error: {
           data: expect.stringMatching(UUID_REGEX)
@@ -325,7 +327,7 @@ describe("Failed request", function () {
 
     const result = await jsonRpc.onMessage(notification);
 
-    expect(JSON.parse(result)).toMatchInlineSnapshot(
+    expect(JSONParse(result)).toMatchInlineSnapshot(
       {
         error: {
           stack: expect.any(String),
